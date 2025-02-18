@@ -4,10 +4,19 @@
 
 package frc.robot;
 
+import frc.lib.mathExtras;
 import frc.robot.Constants.OperatorConstants;
-import frc.robot.commands.Autos;
 import frc.robot.commands.ExampleCommand;
+import frc.robot.commands.Autons.TestAuton;
 import frc.robot.subsystems.ExampleSubsystem;
+import frc.robot.subsystems.SwerveSubsystem;
+import frc.robot.subsystems.VisionSubsystem;
+
+import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.auto.NamedCommands;
+
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -22,6 +31,13 @@ public class RobotContainer {
   // The robot's subsystems and commands are defined here...
   private final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
 
+  private final SwerveSubsystem m_swerveSubsystem = new SwerveSubsystem();
+  private final VisionSubsystem m_visionSubsystem = new VisionSubsystem();
+
+  private final SendableChooser<Command> autoChooser;
+
+  double deadband = 0.2;
+
   // Replace with CommandPS4Controller or CommandJoystick if needed
   private final CommandXboxController m_driverController =
       new CommandXboxController(OperatorConstants.kDriverControllerPort);
@@ -29,26 +45,40 @@ public class RobotContainer {
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
     // Configure the trigger bindings
+    m_visionSubsystem.turnTowardAprilTag(m_swerveSubsystem).addRequirements(m_swerveSubsystem);
+
+    m_swerveSubsystem.setDefaultCommand(m_swerveSubsystem.driveCommand(
+      ()-> mathExtras.deadband(-m_driverController.getLeftY(), deadband),
+      ()-> mathExtras.deadband(-m_driverController.getLeftX(), deadband),
+      ()-> mathExtras.deadband(-m_driverController.getRightX(), deadband),
+      ()-> mathExtras.deadband(-m_driverController.getRightY(), deadband)));
+
+    autoChooser = AutoBuilder.buildAutoChooser();
+    SmartDashboard.putData("Auto Chooser", autoChooser);
+
+    NamedCommands.registerCommand("TestAuton", new TestAuton(m_swerveSubsystem));
+
     configureBindings();
   }
 
-  /**
-   * Use this method to define your trigger->command mappings. Triggers can be created via the
-   * {@link Trigger#Trigger(java.util.function.BooleanSupplier)} constructor with an arbitrary
-   * predicate, or via the named factories in {@link
-   * edu.wpi.first.wpilibj2.command.button.CommandGenericHID}'s subclasses for {@link
-   * CommandXboxController Xbox}/{@link edu.wpi.first.wpilibj2.command.button.CommandPS4Controller
-   * PS4} controllers or {@link edu.wpi.first.wpilibj2.command.button.CommandJoystick Flight
-   * joysticks}.
-   */
   private void configureBindings() {
     // Schedule `ExampleCommand` when `exampleCondition` changes to `true`
     new Trigger(m_exampleSubsystem::exampleCondition)
         .onTrue(new ExampleCommand(m_exampleSubsystem));
 
+    SmartDashboard.putNumber("LeftY ", mathExtras.deadband(-m_driverController.getLeftY(), deadband));
+    SmartDashboard.putNumber("LeftX ", mathExtras.deadband(-m_driverController.getLeftX(), deadband));
+    SmartDashboard.putNumber("RightY ", mathExtras.deadband(-m_driverController.getRightY(), deadband));
+    SmartDashboard.putNumber("RightX ", mathExtras.deadband(-m_driverController.getRightX(), deadband));
+
+    SmartDashboard.putNumber("Limelight TX ", m_visionSubsystem.getTx());
+
     // Schedule `exampleMethodCommand` when the Xbox controller's B button is pressed,
     // cancelling on release.
     m_driverController.b().whileTrue(m_exampleSubsystem.exampleMethodCommand());
+    m_driverController.a().whileTrue(m_visionSubsystem.turnTowardAprilTag(m_swerveSubsystem));
+    m_driverController.y().whileTrue(m_visionSubsystem.moveTowardAprilTag(m_swerveSubsystem));
+    m_driverController.x().whileTrue(m_visionSubsystem.moveAndAlignTowardAprilTag(m_swerveSubsystem));
   }
 
   /**
@@ -58,6 +88,6 @@ public class RobotContainer {
    */
   public Command getAutonomousCommand() {
     // An example command will be run in autonomous
-    return Autos.exampleAuto(m_exampleSubsystem);
+    return autoChooser.getSelected();
   }
 }
