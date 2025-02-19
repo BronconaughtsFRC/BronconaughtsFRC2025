@@ -7,7 +7,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Processer 1"
+            "pathName": "Processor 1"
           }
         },
         {
@@ -25,7 +25,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Processer 2"
+            "pathName": "Processor 2"
           }
         },
         {
@@ -37,7 +37,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Processer 3"
+            "pathName": "Processor 3"
           }
         },
         {
@@ -49,7 +49,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Processer 4"
+            "pathName": "Processor 4"
           }
         },
         {
@@ -61,7 +61,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Processer 5"
+            "pathName": "Processor 5"
           }
         }
       ]

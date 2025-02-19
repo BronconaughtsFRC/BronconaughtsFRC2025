@@ -8,7 +8,11 @@ import frc.lib.mathExtras;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.ExampleCommand;
 import frc.robot.commands.Autons.TestAuton;
+import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.ExampleSubsystem;
+import frc.robot.subsystems.LiftSubsystem;
+import frc.robot.subsystems.LinearSlideSubsystem;
+import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.SwerveSubsystem;
 import frc.robot.subsystems.VisionSubsystem;
 
@@ -33,6 +37,11 @@ public class RobotContainer {
 
   private final SwerveSubsystem m_swerveSubsystem = new SwerveSubsystem();
   private final VisionSubsystem m_visionSubsystem = new VisionSubsystem();
+
+  private final ShooterSubsystem m_shooterSubsystem = new ShooterSubsystem();
+  private final ArmSubsystem m_armSubsystem = new ArmSubsystem();
+  private final LinearSlideSubsystem m_linearSlideSubsystem = new LinearSlideSubsystem();
+  private final LiftSubsystem m_liftSubsystem = new LiftSubsystem();
 
   private final SendableChooser<Command> autoChooser;
 

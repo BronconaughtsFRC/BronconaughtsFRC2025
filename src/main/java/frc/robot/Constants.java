@@ -35,6 +35,28 @@ public final class Constants {
     public static final double minAngle = 0.0;
   }
 
+  public static class LinearSlide {
+    public static final int slideMotorID = 16;
+    
+    public static final double kp = 0.02;
+    public static final double ki = 0.0;
+    public static final double kd = 0.0;
+
+    public static final double encoderToMetersCoefficent = 0.0;
+
+    public static final double slideHightFromFloor = 0.2;
+
+    public static final double maxHight = 1.0;
+    public static final double minHight = 0.0;
+  }
+
+  public static class Lift {
+    public static final int liftMotorID = 17;
+
+    public static final double maxHight = 1.0;
+    public static final double minHight = 0.0;
+  }
+
   public static class SwerveDrive {
     public static final double MAX_SPEED = 2.0; //YGASL uses 4.4196
 
@@ -44,5 +66,12 @@ public final class Constants {
   public static class Vision {
     public static final double turnKp = 0.01;
     public static final double distanceKp = 0.4; //0.8 for carpet maybe
+
+    public static final double shooterShotKp = 0.05;
+    public static final double maxBallVelocity = 2.0; //m/s of the ball.
+  }
+
+  public static class PhysicsConstants {
+    public static final double gravitationalConstant = 9.81;
   }
 }

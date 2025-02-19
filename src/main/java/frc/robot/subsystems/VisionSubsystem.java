@@ -78,4 +78,39 @@ public class VisionSubsystem extends SubsystemBase {
   public double getTx() {
     return x;
   }
+
+  public double calculatePerfectShot(double targetHight, double range, double vi, ArmSubsystem arm, LinearSlideSubsystem slide) {
+    /* 
+    double speed =  area * Constants.Vision.shooterShotKp;
+    double vi = speed * Constants.Vision.maxBallVelocity;
+    double vx = vi * Math.cos(arm.getCurrentAngle());
+    double vy = vi * Math.sin(arm.getCurrentAngle());
+
+    double t = (-2 * vy) / Constants.PhysicsConstants.gravitationalConstant;
+    double maxHight = (vx * t) / 2;
+    double realMaxHight = maxHight + slide.getHight();
+    */
+    
+
+    double maxHight = targetHight - slide.getHight();
+    double t = 2 * (maxHight / Constants.PhysicsConstants.gravitationalConstant);
+    double vx = 2 * (maxHight/t);
+    double theta = (Math.pow(Math.sin((range * Constants.PhysicsConstants.gravitationalConstant) / Math.pow(vi, 2)), -1)) / 2;
+
+    double speed = vi / Constants.Vision.maxBallVelocity;
+
+    arm.setSetpoint(theta);
+
+    return speed;
+  }
+
+  public double calculateShot(double targetHight, ArmSubsystem arm, LinearSlideSubsystem slide) {
+    double t = 2 * (targetHight / Constants.PhysicsConstants.gravitationalConstant);
+    double vx = 2 * (targetHight / t);
+    double vi = vx / Math.sin(arm.getCurrentAngle());
+
+    double speed = vi / Constants.Vision.maxBallVelocity;
+
+    return speed;
+  }
 }

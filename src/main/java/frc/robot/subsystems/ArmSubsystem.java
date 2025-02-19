@@ -21,7 +21,8 @@ public class ArmSubsystem extends SubsystemBase {
   public double angleSetpoint, angleCurrent = 0.0;
 
   public ArmSubsystem() {
-
+    angleSetpoint = 0.0;
+    angleCurrent = 0.0;
   }
 
   public void setSetpoint(double setpoint) {
@@ -33,5 +34,9 @@ public class ArmSubsystem extends SubsystemBase {
     // This method will be called once per scheduler run
     angleCurrent = armMotor.getEncoder().getPosition() * Constants.Arm.encoderToAngleCoefficent;
     armMotor.set(pid.calculate(angleCurrent, angleSetpoint));
+  }
+
+  public double getCurrentAngle() {
+    return angleCurrent;
   }
 }
