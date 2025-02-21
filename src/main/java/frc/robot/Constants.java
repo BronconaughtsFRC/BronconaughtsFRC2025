@@ -60,15 +60,49 @@ public final class Constants {
   public static class SwerveDrive {
     public static final double MAX_SPEED = 2.0; //YGASL uses 4.4196
 
+    public static final double driveMotorMaxVoltage = 12;
+    public static final double turnMotorMaxVoltage = 12;
+
     public static final double MOI = 1.803;
+
+    public static final double circleDegreesTolerence = 3; //Can not be zero.
+
+    public static final double interationsPerSecond = 20;
+
+    public static final double testEndVelocity = 0.5;
+    public static final double testRampRate = 0.1;
+
+    public static final double metersPerSecondWhileTesting = 2.0;
+    public static final double voltageWhileTestingMotion = 8.0;
+
+    public static final double degreesPerSecondWhileTesting = 120.0;
+    public static final double voltageWhileTestingAngularRotation = 6.0;
+
+    public static double RoFtMBasedVolts(double targetMetersPerSecond) {
+      return Math.pow(voltageWhileTestingMotion, (targetMetersPerSecond / metersPerSecondWhileTesting)); 
+    } //Ratio of Force to Motion. Something I made up for my math.
+    public static double RoFtABasedVolts(double targetDegreesPerSecond) {
+      return Math.pow(voltageWhileTestingAngularRotation, (targetDegreesPerSecond / degreesPerSecondWhileTesting)); 
+    } //Ratio of Force to Angular motion. Something I made up for my math.
   }
 
   public static class Vision {
     public static final double turnKp = 0.01;
-    public static final double distanceKp = 0.4; //0.8 for carpet maybe
+    public static final double distanceKp = 0.4; //0.8 for carpet maybe. Kp to convert area to meters.
 
     public static final double shooterShotKp = 0.05;
     public static final double maxBallVelocity = 2.0; //m/s of the ball.
+
+    public static final double distanceWhileTestingShot = 5.0; //Meters, how far away you were.
+    public static final double voltageWhileTestingShot = 4.0; //Voltage, to hit where you want to.
+
+    public static final double maxMotorVoltage = 12;
+
+    public static double RoFtDBasedVolts(double currentDistance) {
+      return Math.pow(voltageWhileTestingShot, (currentDistance / distanceWhileTestingShot)); 
+    } //Ratio of Force to Distance. Something I made up for my math.
+
+    public static final double targetHightRampSpeed = 0.1; //In meters per second. Higher will make the shot less accurate, but shooter sooner if there is delay.
   }
 
   public static class PhysicsConstants {

@@ -165,6 +165,27 @@ public class SwerveSubsystem extends SubsystemBase {
     swerveDrive.drive(speeds);
   }
 
+  public double getVelocity() {
+    return swerveDrive.getRobotVelocity().vxMetersPerSecond + swerveDrive.getRobotVelocity().vyMetersPerSecond;
+  }
+
+  public double getCurrentAngle() {
+    return swerveDrive.getOdometryHeading().getDegrees();
+  }
+
+  public double getFrontLeftVoltage() {
+    return modules[0].getDriveMotor().getVoltage();
+  }
+  public double getFrontRightVoltage() {
+    return modules[1].getDriveMotor().getVoltage();
+  }
+  public double getBackLeftVoltage() {
+    return modules[2].getDriveMotor().getVoltage();
+  }
+  public double getBackRightVoltage() {
+    return modules[3].getDriveMotor().getVoltage();
+  }
+  
   public void setFrontLeft(double speed, double angle) {
     modules[0].getDriveMotor().set(speed);
     modules[0].setAngle(angle);

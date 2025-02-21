@@ -22,4 +22,9 @@ public class mathExtras {
     }
     return value;
   }
+
+  public static double continuousAngleShortestDistance(double currentAngle, double targetAngle) {
+    double angle = (Math.abs(currentAngle) + Math.abs(targetAngle)) * Math.signum(currentAngle) * Math.signum(targetAngle);
+    return angle;
+  }
 }

@@ -80,21 +80,6 @@ public class VisionSubsystem extends SubsystemBase {
   }
 
   public double calculatePerfectShot(double targetHight, double range, double vi, ArmSubsystem arm, LinearSlideSubsystem slide) {
-    /* 
-    double speed =  area * Constants.Vision.shooterShotKp;
-    double vi = speed * Constants.Vision.maxBallVelocity;
-    double vx = vi * Math.cos(arm.getCurrentAngle());
-    double vy = vi * Math.sin(arm.getCurrentAngle());
-
-    double t = (-2 * vy) / Constants.PhysicsConstants.gravitationalConstant;
-    double maxHight = (vx * t) / 2;
-    double realMaxHight = maxHight + slide.getHight();
-    */
-    
-
-    double maxHight = targetHight - slide.getHight();
-    double t = 2 * (maxHight / Constants.PhysicsConstants.gravitationalConstant);
-    double vx = 2 * (maxHight/t);
     double theta = (Math.pow(Math.sin((range * Constants.PhysicsConstants.gravitationalConstant) / Math.pow(vi, 2)), -1)) / 2;
 
     double speed = vi / Constants.Vision.maxBallVelocity;
@@ -104,13 +89,38 @@ public class VisionSubsystem extends SubsystemBase {
     return speed;
   }
 
-  public double calculateShot(double targetHight, ArmSubsystem arm, LinearSlideSubsystem slide) {
-    double t = 2 * (targetHight / Constants.PhysicsConstants.gravitationalConstant);
-    double vx = 2 * (targetHight / t);
+  public double calculateShot(double targetHight, double targetDistance, ArmSubsystem arm, LinearSlideSubsystem slide) {
+    double realTargetHight = targetHight - Constants.LinearSlide.slideHightFromFloor;
+    double t = 2 * (realTargetHight/ Constants.PhysicsConstants.gravitationalConstant);
+    double vx = 2 * (realTargetHight/ t);
     double vi = vx / Math.sin(arm.getCurrentAngle());
+    double vy = vi*Math.sin(arm.getCurrentAngle());
+
+    double bigT = (vy - Math.sqrt(Math.pow(vy, 2) - ((2 * Constants.PhysicsConstants.gravitationalConstant) * realTargetHight))) / Constants.PhysicsConstants.gravitationalConstant;
+    double distance = vx * bigT;
+
+    while (distance < targetDistance) {
+      realTargetHight = realTargetHight + Constants.Vision.targetHightRampSpeed;
+
+      t = 2 * (realTargetHight/ Constants.PhysicsConstants.gravitationalConstant);
+      vx = 2 * (realTargetHight/ t);
+      vi = vx / Math.sin(arm.getCurrentAngle());
+      vy = vi*Math.sin(arm.getCurrentAngle());
+      bigT = (vy - Math.sqrt(Math.pow(vy, 2) - ((2 * Constants.PhysicsConstants.gravitationalConstant) * realTargetHight))) / Constants.PhysicsConstants.gravitationalConstant;
+      distance = vx * bigT;
+    }
 
     double speed = vi / Constants.Vision.maxBallVelocity;
 
     return speed;
+  }
+
+  public double calculateShotByVolts() {
+    if (Constants.Vision.RoFtDBasedVolts(area * Constants.Vision.distanceKp) <= 12) {
+      return Constants.Vision.RoFtDBasedVolts(area * Constants.Vision.distanceKp) / Constants.Vision.maxMotorVoltage;
+    } 
+    else {
+      return 1;
+    }
   }
 }

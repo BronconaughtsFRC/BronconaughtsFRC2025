@@ -6,6 +6,7 @@ package frc.robot;
 
 import frc.lib.mathExtras;
 import frc.robot.Constants.OperatorConstants;
+import frc.robot.commands.AdvancedSwerveDriveCommand;
 import frc.robot.commands.ExampleCommand;
 import frc.robot.commands.Autons.TestAuton;
 import frc.robot.subsystems.ArmSubsystem;
@@ -84,10 +85,24 @@ public class RobotContainer {
 
     // Schedule `exampleMethodCommand` when the Xbox controller's B button is pressed,
     // cancelling on release.
-    m_driverController.b().whileTrue(m_exampleSubsystem.exampleMethodCommand());
-    m_driverController.a().whileTrue(m_visionSubsystem.turnTowardAprilTag(m_swerveSubsystem));
-    m_driverController.y().whileTrue(m_visionSubsystem.moveTowardAprilTag(m_swerveSubsystem));
-    m_driverController.x().whileTrue(m_visionSubsystem.moveAndAlignTowardAprilTag(m_swerveSubsystem));
+
+    m_driverController.a().whileTrue(new AdvancedSwerveDriveCommand(m_swerveSubsystem));
+    m_driverController.b().whileTrue(
+      new AdvancedSwerveDriveCommand(
+        m_swerveSubsystem,
+         ()-> m_driverController.getLeftY(),
+         ()-> m_driverController.getLeftX(),
+         ()-> m_driverController.getRightX()));
+    m_driverController.x().whileTrue(
+      new AdvancedSwerveDriveCommand(
+        m_swerveSubsystem,
+        0.25,
+        90,
+        1,
+        360,
+        ()-> m_swerveSubsystem.getCurrentAngle(),
+        m_swerveSubsystem.getCurrentAngle()));
+    m_driverController.y().whileTrue(m_visionSubsystem.moveAndAlignTowardAprilTag(m_swerveSubsystem));
   }
 
   /**
