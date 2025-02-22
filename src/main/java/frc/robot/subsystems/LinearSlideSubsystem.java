@@ -28,7 +28,6 @@ public class LinearSlideSubsystem extends SubsystemBase {
   public void setSetpoint(double setpoint, double armAngle) {
     if (!(armAngle > Constants.LinearSlide.maxArmAngleWhenMoving)) {
       slideSetpoint = mathExtras.codeStop(setpoint, Constants.LinearSlide.minHight, Constants.LinearSlide.maxHight);
-
     }
   }
 
@@ -41,5 +40,9 @@ public class LinearSlideSubsystem extends SubsystemBase {
 
   public double getHight() {
     return (slideMotor.getEncoder().getPosition() * Constants.LinearSlide.encoderToMetersCoefficent) + Constants.LinearSlide.slideHightFromFloor;
+  }
+
+  public double getEncoderValue() {
+    return slideMotor.getEncoder().getPosition();
   }
 }

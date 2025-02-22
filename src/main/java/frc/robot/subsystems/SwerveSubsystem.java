@@ -169,6 +169,10 @@ public class SwerveSubsystem extends SubsystemBase {
     return swerveDrive.getRobotVelocity().vxMetersPerSecond + swerveDrive.getRobotVelocity().vyMetersPerSecond;
   }
 
+  public double getAngularVelocity() {
+    return swerveDrive.getGyro().getYawAngularVelocity().baseUnitMagnitude();
+  }
+
   public double getCurrentAngle() {
     return swerveDrive.getOdometryHeading().getDegrees();
   }

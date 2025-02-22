@@ -73,6 +73,7 @@ public final class Constants {
     public static final double interationsPerSecond = 20;
 
     public static final double testEndVelocity = 0.5;
+    public static final double testEndAngularVelocity = 120;
     public static final double testRampRate = 0.1;
 
     public static final double metersPerSecondWhileTesting = 2.0;

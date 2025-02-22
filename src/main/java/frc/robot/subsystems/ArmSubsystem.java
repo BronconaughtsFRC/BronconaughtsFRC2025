@@ -39,4 +39,7 @@ public class ArmSubsystem extends SubsystemBase {
   public double getCurrentAngle() {
     return angleCurrent;
   }
+  public double getEncoderValue() {
+    return armMotor.getEncoder().getPosition();
+  }
 }

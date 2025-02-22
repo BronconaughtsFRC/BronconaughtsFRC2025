@@ -20,7 +20,7 @@ public class AdvancedSwerveDriveCommand extends Command {
 
   double appliedSpeed, appliedAngle = 0.0;
 
-  boolean isCircle, isMotionTest, testsFinished = false;
+  boolean isCircle, isMotionTest, isAngularMotionTest, testsFinished = false;
 
   public AdvancedSwerveDriveCommand(SwerveSubsystem swerve, DoubleSupplier targetSpeedXIn, DoubleSupplier targetSpeedYIn, DoubleSupplier targetHeadingIn, DoubleSupplier turnBySecondsIn) {
     this.swerve = swerve;
@@ -62,8 +62,12 @@ public class AdvancedSwerveDriveCommand extends Command {
     addRequirements(swerve);
   }
 
-  public AdvancedSwerveDriveCommand(SwerveSubsystem swerve) {
-    isMotionTest = true;
+  public AdvancedSwerveDriveCommand(SwerveSubsystem swerve, boolean isAngularMotionTest) {
+    if (isAngularMotionTest) {
+      this.isAngularMotionTest = isAngularMotionTest;
+    } else {
+      isMotionTest = true;
+    }
 
     addRequirements(swerve);
   }
@@ -100,6 +104,24 @@ public class AdvancedSwerveDriveCommand extends Command {
         testsFinished = true;
       } else {
         appliedSpeed = appliedSpeed + Constants.SwerveDrive.testRampRate;
+      }
+    }
+
+    if (isAngularMotionTest) {
+      if (swerve.getAngularVelocity()>= Constants.SwerveDrive.testEndAngularVelocity) {
+        SmartDashboard.putNumber("SwerveDrive test ending velocity: ", swerve.getAngularVelocity());
+        SmartDashboard.putNumber("SwerveDrive test ending appliedSpeed: ", appliedSpeed);
+        SmartDashboard.putNumber("SwerveDrive test ending front left appliedVoltage: ", swerve.getFrontLeftVoltage());
+        SmartDashboard.putNumber("SwerveDrive test ending back left appliedVoltage: ", swerve.getBackLeftVoltage());
+
+        isAngularMotionTest = false;
+        testsFinished = true;
+      } else {
+        appliedSpeed = appliedSpeed + Constants.SwerveDrive.testRampRate;
+        swerve.setFrontLeft(appliedSpeed, 45);
+        swerve.setFrontRight(appliedSpeed, 135);
+        swerve.setBackLeft(appliedSpeed, 45);
+        swerve.setBackRight(appliedSpeed, 135);
       }
     }
 

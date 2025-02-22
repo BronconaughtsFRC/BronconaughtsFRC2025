@@ -5,6 +5,7 @@
 package frc.robot;
 
 import frc.lib.mathExtras;
+import frc.robot.Constants.Arm;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.AdvancedSwerveDriveCommand;
 import frc.robot.commands.ExampleCommand;
@@ -71,6 +72,9 @@ public class RobotContainer {
 
     NamedCommands.registerCommand("TestAuton", new TestAuton(m_swerveSubsystem));
 
+    SmartDashboard.putNumber("Arm Encoder ", m_armSubsystem.getEncoderValue());
+    SmartDashboard.putNumber("LinearSlide Encoder ", m_linearSlideSubsystem.getEncoderValue());
+
     configureBindings();
   }
 
@@ -98,7 +102,7 @@ public class RobotContainer {
       turnSpeedY = -1.0;
     }
 
-    new JoystickButton(driverJoystick, 11).whileTrue(new AdvancedSwerveDriveCommand(m_swerveSubsystem));
+    new JoystickButton(driverJoystick, 11).whileTrue(new AdvancedSwerveDriveCommand(m_swerveSubsystem, false));
     new JoystickButton(driverJoystick, 12).whileTrue(new AdvancedSwerveDriveCommand(
       m_swerveSubsystem,
        ()-> driverJoystick.getY(),
@@ -113,7 +117,7 @@ public class RobotContainer {
       360,
       ()-> m_swerveSubsystem.getCurrentAngle(),
       m_swerveSubsystem.getCurrentAngle()));
-    new JoystickButton(driverJoystick, 4).whileTrue(m_visionSubsystem.moveAndAlignTowardAprilTag(m_swerveSubsystem));
+    new JoystickButton(driverJoystick, 16).whileTrue(m_visionSubsystem.moveAndAlignTowardAprilTag(m_swerveSubsystem));
   }
 
   /**
