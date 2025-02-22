@@ -7,7 +7,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Middle Reef 1"
+            "pathName": "Right Reef 1"
           }
         },
         {
@@ -25,31 +25,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Middle Reef 2"
-          }
-        },
-        {
-          "type": "wait",
-          "data": {
-            "waitTime": 2.0
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "Middle Reef 3"
-          }
-        },
-        {
-          "type": "wait",
-          "data": {
-            "waitTime": 2.0
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "Middle Reef 4"
+            "pathName": "Right Reef 2"
           }
         },
         {
@@ -61,7 +37,19 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Middle Reef 5"
+            "pathName": "Right Reef 3"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 2.0
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Right Reef 4"
           }
         }
       ]

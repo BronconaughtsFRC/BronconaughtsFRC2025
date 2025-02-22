@@ -25,6 +25,9 @@ import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
+import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
@@ -71,6 +74,17 @@ public class RobotContainer {
     SmartDashboard.putData("Auto Chooser", autoChooser);
 
     NamedCommands.registerCommand("TestAuton", new TestAuton(m_swerveSubsystem));
+    NamedCommands.registerCommand("StrafeToAlgaeBall", m_visionSubsystem.strafeTowardAlgaeBall(m_swerveSubsystem));
+    NamedCommands.registerCommand("PickUpTarget", m_visionSubsystem.pickUpTarget(m_swerveSubsystem, m_linearSlideSubsystem, m_armSubsystem, m_shooterSubsystem));
+    NamedCommands.registerCommand("Shoot", new InstantCommand(()-> m_shooterSubsystem.setBothMotorsForTime(
+      m_visionSubsystem.calculateShot(
+      2.262048,
+      m_visionSubsystem.getDistanceFromTarget(2),
+      m_armSubsystem,
+      m_linearSlideSubsystem), Constants.Shooter.secondsToShoot),
+      m_shooterSubsystem)); //Change to other shooter command if the others work better.
+
+    //NamedCommands.registerCommand("AlignThenShoot", somethingIDK);
 
     SmartDashboard.putNumber("Arm Encoder ", m_armSubsystem.getEncoderValue());
     SmartDashboard.putNumber("LinearSlide Encoder ", m_linearSlideSubsystem.getEncoderValue());
@@ -87,7 +101,9 @@ public class RobotContainer {
     SmartDashboard.putNumber("Joystick Y ", mathExtras.deadband(driverJoystick.getY(), deadband));
     SmartDashboard.putNumber("Joystick Z ", mathExtras.deadband(driverJoystick.getZ(), deadband));
 
-    SmartDashboard.putNumber("Limelight TX ", m_visionSubsystem.getTx());
+    SmartDashboard.putNumber("Limelight TX Pipeline 0 ", m_visionSubsystem.getTx(0));
+    SmartDashboard.putNumber("Limelight TX Pipeline 1 ", m_visionSubsystem.getTx(1));
+    SmartDashboard.putNumber("Limelight TX Pipeline 2 ", m_visionSubsystem.getTx(2));
 
     // Schedule `exampleMethodCommand` when the Xbox controller's B button is pressed,
     // cancelling on release.
@@ -118,6 +134,47 @@ public class RobotContainer {
       ()-> m_swerveSubsystem.getCurrentAngle(),
       m_swerveSubsystem.getCurrentAngle()));
     new JoystickButton(driverJoystick, 16).whileTrue(m_visionSubsystem.moveAndAlignTowardAprilTag(m_swerveSubsystem));
+
+    /*
+    new JoystickButton(driverJoystick, 1).onTrue(
+      new InstantCommand(()-> m_shooterSubsystem.setBothMotorsForTime(
+        m_visionSubsystem.calculateShot(
+        2.262048,
+        m_visionSubsystem.getDistanceFromTarget(2),
+        m_armSubsystem,
+        m_linearSlideSubsystem), Constants.Shooter.secondsToShoot),
+        m_shooterSubsystem));
+    new JoystickButton(driverJoystick, 3).onTrue(
+      new InstantCommand(()-> m_shooterSubsystem.setBothMotorsForTime(
+        m_visionSubsystem.calculatePerfectShot(
+        2.262048,
+        (m_visionSubsystem.getDistanceFromTarget(2) * 1.75),
+        m_visionSubsystem.getDistanceFromTarget(2),
+        m_armSubsystem,
+        m_linearSlideSubsystem), Constants.Shooter.secondsToShoot),
+        m_shooterSubsystem));
+    new JoystickButton(driverJoystick, 2).onTrue(
+      new InstantCommand(()-> m_shooterSubsystem.setBothMotorsForTime(
+        m_visionSubsystem.calculateShotByVolts(), Constants.Shooter.secondsToShoot),
+        m_shooterSubsystem));
+    */
+
+    /* 
+    new JoystickButton(driverJoystick, 3).whileTrue(
+      new RunCommand(()-> m_linearSlideSubsystem.increaseSetpoint(
+        m_armSubsystem.getCurrentAngle()),
+         m_linearSlideSubsystem));
+    new JoystickButton(driverJoystick, 4).whileTrue(
+      new RunCommand(()-> m_linearSlideSubsystem.decreaseSetpoint(
+        m_armSubsystem.getCurrentAngle()),
+          m_linearSlideSubsystem));
+    new JoystickButton(driverJoystick, 2).whileTrue(
+      new RunCommand(()-> m_visionSubsystem.pickUpTarget(
+        m_swerveSubsystem,
+        m_linearSlideSubsystem,
+        m_armSubsystem,
+        m_shooterSubsystem)));
+    */
   }
 
   /**

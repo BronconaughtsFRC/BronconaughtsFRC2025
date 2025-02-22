@@ -20,6 +20,12 @@ public final class Constants {
   public static class Shooter {
     public static final int leftMotorID = 13;
     public static final int rightMotorID = 14;
+
+    public static final int iterationsPerSecond = 20;
+
+    public static final double secondsToShoot = 1.0;
+
+    public static final double speedToPickup = -0.6;
   }
 
   public static class Arm {
@@ -28,6 +34,10 @@ public final class Constants {
     public static final double kp = 0.02;
     public static final double ki = 0.0;
     public static final double kd = 0.0;
+
+    public static final double angleToGrabOffReef = 45;
+
+    public static final double minSlideHightWhenMoving = 5.0;
 
     public static final double encoderToAngleCoefficent = 0.0;
 
@@ -41,6 +51,8 @@ public final class Constants {
     public static final double kp = 0.02;
     public static final double ki = 0.0;
     public static final double kd = 0.0;
+
+    public static final double slideRampSpeed = 0.1;
 
     public static final double maxArmAngleWhenMoving = 120;
 
@@ -92,10 +104,18 @@ public final class Constants {
 
   public static class Vision {
     public static final double turnKp = 0.01;
-    public static final double distanceKp = 0.4; //0.8 for carpet maybe. Kp to convert area to meters.
+    public static final double driveToDistanceKp = 0.4; //0.8 for carpet maybe. Kp to convert area to meters.
+    public static final double distanceKp = 0.4; 
+    public static final double slideMovementKp = 0.01;
+
+    public static final double largestPossibleVisionArea = 20;
+    public static final double areaDeadband = 0.05;
+    public static final double areaDedectionDeadband = 0.005; //Zero for no deadband.
 
     public static final double shooterShotKp = 0.05;
     public static final double maxBallVelocity = 2.0; //m/s of the ball.
+
+    public static final double pickUpTargetSlideHightTolerence = 0.2;
 
     public static final double distanceWhileTestingShot = 5.0; //Meters, how far away you were.
     public static final double voltageWhileTestingShot = 4.0; //Voltage, to hit where you want to.
@@ -107,6 +127,10 @@ public final class Constants {
     } //Ratio of Force to Distance. Something I made up for my math.
 
     public static final double targetHightRampSpeed = 0.1; //In meters per second. Higher will make the shot less accurate, but shooter sooner if there is delay.
+  }
+
+  public static class FieldConstants {
+    public static final double hightOfBottemAlgaeInReef = 0.9188704;
   }
 
   public static class PhysicsConstants {

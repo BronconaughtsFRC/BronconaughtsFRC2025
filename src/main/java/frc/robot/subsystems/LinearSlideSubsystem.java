@@ -30,6 +30,16 @@ public class LinearSlideSubsystem extends SubsystemBase {
       slideSetpoint = mathExtras.codeStop(setpoint, Constants.LinearSlide.minHight, Constants.LinearSlide.maxHight);
     }
   }
+  public void increaseSetpoint(double armAngle) {
+    if (!(armAngle > Constants.LinearSlide.maxArmAngleWhenMoving)) {
+      slideSetpoint = mathExtras.codeStop(slideSetpoint + Constants.LinearSlide.slideRampSpeed, Constants.LinearSlide.minHight, Constants.LinearSlide.maxHight);
+    }
+  }
+  public void decreaseSetpoint(double armAngle) {
+    if (!(armAngle > Constants.LinearSlide.maxArmAngleWhenMoving)) {
+      slideSetpoint = mathExtras.codeStop(slideSetpoint - Constants.LinearSlide.slideRampSpeed, Constants.LinearSlide.minHight, Constants.LinearSlide.maxHight);
+    }
+  }
 
   @Override
   public void periodic() {
@@ -44,5 +54,9 @@ public class LinearSlideSubsystem extends SubsystemBase {
 
   public double getEncoderValue() {
     return slideMotor.getEncoder().getPosition();
+  }
+
+  public double getSetpoint() {
+    return slideSetpoint;
   }
 }

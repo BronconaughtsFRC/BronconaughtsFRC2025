@@ -25,8 +25,22 @@ public class ArmSubsystem extends SubsystemBase {
     angleCurrent = 0.0;
   }
 
-  public void setSetpoint(double setpoint) {
-    angleSetpoint = mathExtras.codeStop(setpoint, Constants.Arm.minAngle, Constants.Arm.maxAngle);
+  public void setSetpoint(double setpoint, double linearSlideHight) {
+    if (!(linearSlideHight > Constants.Arm.minSlideHightWhenMoving)) {
+      angleSetpoint = mathExtras.codeStop(setpoint, Constants.Arm.minAngle, Constants.Arm.maxAngle);
+    }
+  }
+
+  public void setToReefGrab(double linearSlideHight) {
+    if (!(linearSlideHight > Constants.Arm.minSlideHightWhenMoving)) {
+      angleSetpoint = mathExtras.codeStop(Constants.Arm.angleToGrabOffReef, Constants.Arm.minAngle, Constants.Arm.maxAngle);
+    }
+  }
+
+  public void setToFloorGrab(double linearSlideHight) {
+    if (!(linearSlideHight > Constants.Arm.minSlideHightWhenMoving)) {
+      angleSetpoint = mathExtras.codeStop(0, Constants.Arm.minAngle, Constants.Arm.maxAngle);
+    }
   }
 
   @Override
