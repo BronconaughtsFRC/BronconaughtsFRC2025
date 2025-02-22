@@ -42,6 +42,8 @@ public final class Constants {
     public static final double ki = 0.0;
     public static final double kd = 0.0;
 
+    public static final double maxArmAngleWhenMoving = 120;
+
     public static final double encoderToMetersCoefficent = 0.0;
 
     public static final double slideHightFromFloor = 0.2;
@@ -59,6 +61,7 @@ public final class Constants {
 
   public static class SwerveDrive {
     public static final double MAX_SPEED = 2.0; //YGASL uses 4.4196
+    public static final double maxRotationalSpeed = 360; //Degrees Per Second
 
     public static final double driveMotorMaxVoltage = 12;
     public static final double turnMotorMaxVoltage = 12;
