@@ -10,6 +10,8 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
@@ -27,8 +29,8 @@ public class VisionSubsystem extends SubsystemBase {
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
-    NetworkTable table1 = NetworkTableInstance.getDefault().getTable("limelight-bronco");
-    NetworkTable table2 = NetworkTableInstance.getDefault().getTable("limelight-bronco2");
+    NetworkTable table1 = NetworkTableInstance.getDefault().getTable("limelight-broncoa");
+    NetworkTable table2 = NetworkTableInstance.getDefault().getTable("limelight-broncob");
     table1.getEntry("pipeline").setNumber(pipelineNumber);
     table2.getEntry("pipeline").setNumber(pipelineNumber);
 
@@ -40,15 +42,18 @@ public class VisionSubsystem extends SubsystemBase {
       tx = table1.getEntry("tx");
       ty = table1.getEntry("ty");
       ta = table1.getEntry("ta");
+
+      y = -ty.getDouble(0.0);
     } else {
       tx = table2.getEntry("tx");
       ty = table2.getEntry("ty");
       ta = table2.getEntry("ta");
+
+      y = ty.getDouble(0.0);
     }
 
     //read values periodically
     x = tx.getDouble(0.0);
-    y = ty.getDouble(0.0);
     area = ta.getDouble(0.0);
 
     if (area < Constants.Vision.areaDeadband) {
@@ -158,6 +163,40 @@ public class VisionSubsystem extends SubsystemBase {
         }
       }
     );
+  }
+
+  public Command turnTowardPoint(SwerveSubsystem swerve, double x, double y) {
+    return run(()-> {
+        Pose2d position = swerve.getPose();
+
+        double positionX = position.getX();
+        double positionY = position.getY();
+
+        double xSide = x - positionX;
+        double ySide = y - positionY;
+
+        double hypotenuse = xSide + ySide;
+
+        double neededAngle = Math.pow(Math.sin(hypotenuse/xSide), -1);
+
+        double turningAngle = swerve.getCurrentAngle() + neededAngle;
+
+        swerve.setFrontLeft((turningAngle * Constants.Vision.turnKp), -45.0);
+        swerve.setFrontRight(-(turningAngle * Constants.Vision.turnKp), 45.0);
+        swerve.setBackLeft((turningAngle * Constants.Vision.turnKp), 45.0);
+        swerve.setBackRight(-(turningAngle * Constants.Vision.turnKp), -45.0);
+      }
+    );
+  }
+
+  public Pose2d getBargePosition() {
+    var allience = DriverStation.getAlliance();
+    if (allience.isPresent()) {
+      if (allience.equals(Alliance.Red)) {
+        return new Pose2d(8.75, 2, new Rotation2d(0));
+      }
+    }
+    return new Pose2d(8.75, 6.2, new Rotation2d(0));
   }
 
   public double getTx(int pipeline) {

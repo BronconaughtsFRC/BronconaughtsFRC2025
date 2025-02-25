@@ -8,6 +8,7 @@ import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.lib.mathExtras;
 import frc.robot.Constants;
@@ -41,8 +42,15 @@ public class LinearSlideSubsystem extends SubsystemBase {
     }
   }
 
+  public void setMotors(double speed) {
+    slideMotor.set(speed);
+  }
+
   @Override
   public void periodic() {
+    SmartDashboard.putNumber("SlideCurrent ", slideCurrent);
+    SmartDashboard.putNumber("SlideMotor Get", slideMotor.get());
+
     // This method will be called once per scheduler run
     slideCurrent = slideMotor.getEncoder().getPosition() * Constants.LinearSlide.encoderToMetersCoefficent;
     slideMotor.set(pid.calculate(slideCurrent, slideSetpoint));

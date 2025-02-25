@@ -5,11 +5,9 @@
 package frc.robot;
 
 import frc.lib.mathExtras;
-import frc.robot.Constants.Arm;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.AdvancedSwerveDriveCommand;
 import frc.robot.commands.ExampleCommand;
-import frc.robot.commands.Autons.TestAuton;
 import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.ExampleSubsystem;
 import frc.robot.subsystems.LiftSubsystem;
@@ -21,6 +19,7 @@ import frc.robot.subsystems.VisionSubsystem;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -44,14 +43,12 @@ public class RobotContainer {
   private final SwerveSubsystem m_swerveSubsystem = new SwerveSubsystem();
   private final VisionSubsystem m_visionSubsystem = new VisionSubsystem();
 
-  private final ShooterSubsystem m_shooterSubsystem = new ShooterSubsystem();
+  //private final ShooterSubsystem m_shooterSubsystem = new ShooterSubsystem();
   private final ArmSubsystem m_armSubsystem = new ArmSubsystem();
   private final LinearSlideSubsystem m_linearSlideSubsystem = new LinearSlideSubsystem();
   private final LiftSubsystem m_liftSubsystem = new LiftSubsystem();
 
   private final SendableChooser<Command> autoChooser;
-
-  double deadband = 0.2;
 
   double turnSpeedX, turnSpeedY = 0.0;
 
@@ -65,16 +62,19 @@ public class RobotContainer {
     m_visionSubsystem.turnTowardAprilTag(m_swerveSubsystem).addRequirements(m_swerveSubsystem);
 
     m_swerveSubsystem.setDefaultCommand(m_swerveSubsystem.driveCommand(
-      ()-> mathExtras.deadband(driverJoystick.getY(), deadband),
-      ()-> mathExtras.deadband(driverJoystick.getX(), deadband),
-      ()-> mathExtras.deadband(turnSpeedX, deadband),
-      ()-> mathExtras.deadband(turnSpeedY, deadband)));
+      ()-> -mathExtras.deadband(driverJoystick.getY(), Constants.OperatorConstants.deadband),
+      ()-> -mathExtras.deadband(driverJoystick.getX(), Constants.OperatorConstants.deadband),
+      ()-> -mathExtras.deadband(driverJoystick.getZ(), Constants.OperatorConstants.deadband)));
+
+    Pose2d bargePosition = m_visionSubsystem.getBargePosition();
 
     autoChooser = AutoBuilder.buildAutoChooser();
     SmartDashboard.putData("Auto Chooser", autoChooser);
 
-    NamedCommands.registerCommand("TestAuton", new TestAuton(m_swerveSubsystem));
     NamedCommands.registerCommand("StrafeToAlgaeBall", m_visionSubsystem.strafeTowardAlgaeBall(m_swerveSubsystem));
+
+    /* 
+
     NamedCommands.registerCommand("PickUpTarget", m_visionSubsystem.pickUpTarget(m_swerveSubsystem, m_linearSlideSubsystem, m_armSubsystem, m_shooterSubsystem));
     NamedCommands.registerCommand("Shoot", new InstantCommand(()-> m_shooterSubsystem.setBothMotorsForTime(
       m_visionSubsystem.calculateShot(
@@ -84,10 +84,14 @@ public class RobotContainer {
       m_linearSlideSubsystem), Constants.Shooter.secondsToShoot),
       m_shooterSubsystem)); //Change to other shooter command if the others work better.
 
+      */
+    NamedCommands.registerCommand("Turn Toward Barge", m_visionSubsystem.turnTowardPoint(m_swerveSubsystem, bargePosition.getX(), bargePosition.getY()));
+
     //NamedCommands.registerCommand("AlignThenShoot", somethingIDK);
 
     SmartDashboard.putNumber("Arm Encoder ", m_armSubsystem.getEncoderValue());
     SmartDashboard.putNumber("LinearSlide Encoder ", m_linearSlideSubsystem.getEncoderValue());
+    SmartDashboard.putNumber("Lift Encoder", m_liftSubsystem.getEncoderValue());
 
     configureBindings();
   }
@@ -97,9 +101,9 @@ public class RobotContainer {
     new Trigger(m_exampleSubsystem::exampleCondition)
         .onTrue(new ExampleCommand(m_exampleSubsystem));
 
-    SmartDashboard.putNumber("Joystick X ", mathExtras.deadband(driverJoystick.getX(), deadband));
-    SmartDashboard.putNumber("Joystick Y ", mathExtras.deadband(driverJoystick.getY(), deadband));
-    SmartDashboard.putNumber("Joystick Z ", mathExtras.deadband(driverJoystick.getZ(), deadband));
+    SmartDashboard.putNumber("Joystick X ", mathExtras.deadband(driverJoystick.getX(), Constants.OperatorConstants.deadband));
+    SmartDashboard.putNumber("Joystick Y ", mathExtras.deadband(driverJoystick.getY(), Constants.OperatorConstants.deadband));
+    SmartDashboard.putNumber("Joystick Z ", mathExtras.deadband(driverJoystick.getZ(), Constants.OperatorConstants.deadband));
 
     SmartDashboard.putNumber("Limelight TX Pipeline 0 ", m_visionSubsystem.getTx(0));
     SmartDashboard.putNumber("Limelight TX Pipeline 1 ", m_visionSubsystem.getTx(1));
@@ -134,6 +138,20 @@ public class RobotContainer {
       ()-> m_swerveSubsystem.getCurrentAngle(),
       m_swerveSubsystem.getCurrentAngle()));
     new JoystickButton(driverJoystick, 16).whileTrue(m_visionSubsystem.moveAndAlignTowardAprilTag(m_swerveSubsystem));
+
+    //new JoystickButton(driverJoystick, 15).whileTrue(new RunCommand (()->m_liftSubsystem.unsafeSpeed(-0.3))).onFalse(new RunCommand (()->m_liftSubsystem.unsafeSpeed(0.0)));
+    //new JoystickButton(driverJoystick, 14).whileTrue(new RunCommand (()->m_liftSubsystem.unsafeSpeed(0.3))).onFalse(new RunCommand (()->m_liftSubsystem.unsafeSpeed(0.0)));
+
+
+    //new JoystickButton(driverJoystick, 15).whileTrue(new RunCommand (()->m_shooterSubsystem.setBothMotors(0.6))).onFalse(new RunCommand (()->m_shooterSubsystem.setBothMotors(0.0)));
+    //new JoystickButton(driverJoystick, 14).whileTrue(new RunCommand (()->m_shooterSubsystem.setBothMotors(-0.6))).onFalse(new RunCommand (()->m_shooterSubsystem.setBothMotors(0.0)));
+
+
+    //new JoystickButton(driverJoystick, 15).onTrue(new InstantCommand(()-> m_linearSlideSubsystem.setSetpoint(1, m_armSubsystem.getCurrentAngle()))).onFalse(new InstantCommand(()-> m_linearSlideSubsystem.setSetpoint(0, m_armSubsystem.getCurrentAngle())));
+
+    //new JoystickButton(driverJoystick, 15).whileTrue(new RunCommand (()->m_linearSlideSubsystem.setMotors(0.65))).onFalse(new RunCommand (()->m_linearSlideSubsystem.setMotors(0.0)));
+    //new JoystickButton(driverJoystick, 14).whileTrue(new RunCommand (()->m_linearSlideSubsystem.setMotors(-0.65))).onFalse(new RunCommand (()->m_linearSlideSubsystem.setMotors(0.0)));
+
 
     /*
     new JoystickButton(driverJoystick, 1).onTrue(

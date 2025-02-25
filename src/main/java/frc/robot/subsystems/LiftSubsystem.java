@@ -26,6 +26,14 @@ public class LiftSubsystem extends SubsystemBase {
     liftMotor.set(speed);
   }
 
+  public void unsafeSpeed(double speed) {
+    liftMotor.set(speed);
+  }
+
+  public double getEncoderValue() {
+    return liftMotor.getEncoder().getPosition();
+  }
+
   @Override
   public void periodic() {
     // This method will be called once per scheduler run

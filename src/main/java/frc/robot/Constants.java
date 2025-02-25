@@ -15,11 +15,13 @@ package frc.robot;
 public final class Constants {
   public static class OperatorConstants {
     public static final int kDriverControllerPort = 0;
+
+    public static final double deadband = 0.2;
   }
 
   public static class Shooter {
-    public static final int leftMotorID = 13;
-    public static final int rightMotorID = 14;
+    public static final int leftMotorID = 9;
+    public static final int rightMotorID = 7;
 
     public static final int iterationsPerSecond = 20;
 
@@ -29,7 +31,7 @@ public final class Constants {
   }
 
   public static class Arm {
-    public static final int armMotorID = 15;
+    public static final int armMotorID = 8;
 
     public static final double kp = 0.02;
     public static final double ki = 0.0;
@@ -39,7 +41,7 @@ public final class Constants {
 
     public static final double minSlideHightWhenMoving = 5.0;
 
-    public static final double encoderToAngleCoefficent = 0.0;
+    public static final double encoderToAngleCoefficent = 1;
 
     public static final double maxAngle = 1.0;
     public static final double minAngle = 0.0;
@@ -56,19 +58,19 @@ public final class Constants {
 
     public static final double maxArmAngleWhenMoving = 120;
 
-    public static final double encoderToMetersCoefficent = 0.0;
+    public static final double encoderToMetersCoefficent = 0.046;
 
     public static final double slideHightFromFloor = 0.2;
 
-    public static final double maxHight = 1.0;
+    public static final double maxHight = 1.405;
     public static final double minHight = 0.0;
   }
 
   public static class Lift {
     public static final int liftMotorID = 17;
 
-    public static final double maxHight = 1.0;
-    public static final double minHight = 0.0;
+    public static final double maxHight = 1.0; //112
+    public static final double minHight = -110.0;
   }
 
   public static class SwerveDrive {
@@ -84,9 +86,9 @@ public final class Constants {
 
     public static final double interationsPerSecond = 20;
 
-    public static final double testEndVelocity = 0.5;
+    public static final double testEndVelocity = 1.5;
     public static final double testEndAngularVelocity = 120;
-    public static final double testRampRate = 0.1;
+    public static final double testRampRate = 0.0025;
 
     public static final double metersPerSecondWhileTesting = 2.0;
     public static final double voltageWhileTestingMotion = 8.0;

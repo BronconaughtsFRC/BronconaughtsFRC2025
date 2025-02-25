@@ -23,6 +23,18 @@ public class AdvancedSwerveDriveCommand extends Command {
   boolean isCircle, isMotionTest, isAngularMotionTest, testsFinished = false;
 
   public AdvancedSwerveDriveCommand(SwerveSubsystem swerve, DoubleSupplier targetSpeedXIn, DoubleSupplier targetSpeedYIn, DoubleSupplier targetHeadingIn, DoubleSupplier turnBySecondsIn) {
+    isCircle = false;
+    isMotionTest = false;
+    isAngularMotionTest = false;
+    testsFinished = false;
+
+    targetSpeedX = 0.0;
+    targetSpeedY = 0.0;
+    targetHeading = 0.0;
+
+    appliedSpeed = 0.0;
+    appliedAngle = 0.0;
+
     this.swerve = swerve;
     this.targetSpeedX = targetSpeedXIn.getAsDouble();
     this.targetSpeedY = targetSpeedYIn.getAsDouble();
@@ -46,6 +58,18 @@ public class AdvancedSwerveDriveCommand extends Command {
   }
 
   public AdvancedSwerveDriveCommand(SwerveSubsystem swerve, double targetSpeed, double targetAngle, double radious, double turnByAngle, DoubleSupplier currentAngle, double startingAngle) {
+    isCircle = false;
+    isMotionTest = false;
+    isAngularMotionTest = false;
+    testsFinished = false;
+
+    targetSpeedX = 0.0;
+    targetSpeedY = 0.0;
+    targetHeading = 0.0;
+
+    appliedSpeed = 0.0;
+    appliedAngle = 0.0;
+
     this.swerve = swerve;
     this.appliedSpeed = targetSpeed;
     this.targetAngle = targetAngle;
@@ -63,6 +87,19 @@ public class AdvancedSwerveDriveCommand extends Command {
   }
 
   public AdvancedSwerveDriveCommand(SwerveSubsystem swerve, boolean isAngularMotionTest) {
+    isCircle = false;
+    isMotionTest = false;
+    isAngularMotionTest = false;
+    testsFinished = false;
+
+    targetSpeedX = 0.0;
+    targetSpeedY = 0.0;
+    targetHeading = 0.0;
+
+    appliedSpeed = 0.0;
+    appliedAngle = 0.0;
+
+    this.swerve = swerve;
     if (isAngularMotionTest) {
       this.isAngularMotionTest = isAngularMotionTest;
     } else {
@@ -74,7 +111,9 @@ public class AdvancedSwerveDriveCommand extends Command {
 
   // Called when the command is initially scheduled.
   @Override
-  public void initialize() {}
+  public void initialize() {
+
+  }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
@@ -88,7 +127,7 @@ public class AdvancedSwerveDriveCommand extends Command {
       swerve.setBackRight(appliedSpeed, ((currentAngle + (mDegrees *  targetSpeed)) + (((targetHeading / 360) * 135) / (circumference / targetSpeed))) / 2);
 
       
-    } else {
+    } if ((!isMotionTest && !isAngularMotionTest) || !(targetSpeedY == 0.0) || !(targetSpeedX == 0.0)) {
       appliedSpeed = Constants.SwerveDrive.RoFtMBasedVolts(targetSpeedX + targetSpeedY) / Constants.SwerveDrive.driveMotorMaxVoltage;
       appliedAngle = ((90 * targetSpeedY) / (targetSpeedY + targetSpeedX));
     }
@@ -104,6 +143,7 @@ public class AdvancedSwerveDriveCommand extends Command {
         testsFinished = true;
       } else {
         appliedSpeed = appliedSpeed + Constants.SwerveDrive.testRampRate;
+        appliedAngle = 0.0;
       }
     }
 
@@ -137,6 +177,11 @@ public class AdvancedSwerveDriveCommand extends Command {
       swerve.setBackRight(appliedSpeed, appliedAngle);
     }
 
+    SmartDashboard.putNumber("AppliedSpeed ", appliedSpeed);
+    SmartDashboard.putNumber("AppliedAngle ", appliedAngle);
+
+    SmartDashboard.putBoolean("Is Motion Test ", isMotionTest);
+    SmartDashboard.putBoolean("Is Angular Motion Test ", isAngularMotionTest);
   }
 
   // Called once the command ends or is interrupted.

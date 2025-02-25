@@ -8,13 +8,14 @@ import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.wpilibj.motorcontrol.PWMSparkMax;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.lib.mathExtras;
 import frc.robot.Constants;
 
 public class ArmSubsystem extends SubsystemBase {
   /** Creates a new ArmSubsystem. */
-  SparkMax armMotor = new SparkMax(15, MotorType.kBrushless);;
+  PWMSparkMax armMotor = new PWMSparkMax(Constants.Arm.armMotorID);
 
   PIDController pid = new PIDController(Constants.Arm.kp, Constants.Arm.ki, Constants.Arm.kd);
 
@@ -46,7 +47,7 @@ public class ArmSubsystem extends SubsystemBase {
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
-    angleCurrent = armMotor.getEncoder().getPosition() * Constants.Arm.encoderToAngleCoefficent;
+    angleCurrent = armMotor.get() * Constants.Arm.encoderToAngleCoefficent;
     armMotor.set(pid.calculate(angleCurrent, angleSetpoint));
   }
 
@@ -54,6 +55,6 @@ public class ArmSubsystem extends SubsystemBase {
     return angleCurrent;
   }
   public double getEncoderValue() {
-    return armMotor.getEncoder().getPosition();
+    return armMotor.get();
   }
 }
