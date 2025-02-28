@@ -4,15 +4,15 @@
 
 package frc.robot.subsystems;
 
-import edu.wpi.first.wpilibj.motorcontrol.PWMSparkMax;
-import edu.wpi.first.wpilibj.motorcontrol.Spark;
+import com.revrobotics.spark.SparkMax;
+import com.revrobotics.spark.SparkLowLevel.MotorType;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
 public class ShooterSubsystem extends SubsystemBase {
   /** Creates a new ShooterSubsystem. */
-  PWMSparkMax leftMotor = new PWMSparkMax(Constants.Shooter.leftMotorID);
-  PWMSparkMax rightMotor  = new PWMSparkMax(Constants.Shooter.rightMotorID);
+  SparkMax leftMotor = new SparkMax(Constants.Shooter.leftMotorID, MotorType.kBrushless);
+  SparkMax rightMotor  = new SparkMax(Constants.Shooter.rightMotorID, MotorType.kBrushless);
 
   public ShooterSubsystem() {
     

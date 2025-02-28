@@ -48,11 +48,14 @@ public class LinearSlideSubsystem extends SubsystemBase {
 
   @Override
   public void periodic() {
-    SmartDashboard.putNumber("SlideCurrent ", slideCurrent);
-    SmartDashboard.putNumber("SlideMotor Get", slideMotor.get());
+    SmartDashboard.putNumber("SlideMotor Get Encoder Value ", getEncoderValue());
+
+    SmartDashboard.putNumber("Linear Slide Setpoint ", getSetpoint());
 
     // This method will be called once per scheduler run
     slideCurrent = slideMotor.getEncoder().getPosition() * Constants.LinearSlide.encoderToMetersCoefficent;
+    SmartDashboard.putNumber("SlideCurrent ", slideCurrent);
+
     slideMotor.set(pid.calculate(slideCurrent, slideSetpoint));
   }
 

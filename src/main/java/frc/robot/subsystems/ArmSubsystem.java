@@ -8,14 +8,14 @@ import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 
 import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.wpilibj.motorcontrol.PWMSparkMax;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.lib.mathExtras;
 import frc.robot.Constants;
 
 public class ArmSubsystem extends SubsystemBase {
   /** Creates a new ArmSubsystem. */
-  PWMSparkMax armMotor = new PWMSparkMax(Constants.Arm.armMotorID);
+  SparkMax armMotor = new SparkMax(Constants.Arm.armMotorID, MotorType.kBrushless);
 
   PIDController pid = new PIDController(Constants.Arm.kp, Constants.Arm.ki, Constants.Arm.kd);
 
@@ -44,8 +44,15 @@ public class ArmSubsystem extends SubsystemBase {
     }
   }
 
+  public void setMotor(double speed) {
+    armMotor.set(speed);
+  }
+
   @Override
   public void periodic() {
+    SmartDashboard.putNumber("Arm Encoder ", getEncoderValue());
+
+
     // This method will be called once per scheduler run
     angleCurrent = armMotor.get() * Constants.Arm.encoderToAngleCoefficent;
     armMotor.set(pid.calculate(angleCurrent, angleSetpoint));
@@ -55,6 +62,6 @@ public class ArmSubsystem extends SubsystemBase {
     return angleCurrent;
   }
   public double getEncoderValue() {
-    return armMotor.get();
+    return armMotor.getEncoder().getPosition();
   }
 }

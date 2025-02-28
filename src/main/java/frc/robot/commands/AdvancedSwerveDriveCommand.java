@@ -22,6 +22,8 @@ public class AdvancedSwerveDriveCommand extends Command {
 
   boolean isCircle, isMotionTest, isAngularMotionTest, testsFinished = false;
 
+  int count = 0;
+
   public AdvancedSwerveDriveCommand(SwerveSubsystem swerve, DoubleSupplier targetSpeedXIn, DoubleSupplier targetSpeedYIn, DoubleSupplier targetHeadingIn, DoubleSupplier turnBySecondsIn) {
     isCircle = false;
     isMotionTest = false;
@@ -89,7 +91,7 @@ public class AdvancedSwerveDriveCommand extends Command {
   public AdvancedSwerveDriveCommand(SwerveSubsystem swerve, boolean isAngularMotionTest) {
     isCircle = false;
     isMotionTest = false;
-    isAngularMotionTest = false;
+    this.isAngularMotionTest = false;
     testsFinished = false;
 
     targetSpeedX = 0.0;
@@ -142,26 +144,14 @@ public class AdvancedSwerveDriveCommand extends Command {
         isMotionTest = false;
         testsFinished = true;
       } else {
-        appliedSpeed = appliedSpeed + Constants.SwerveDrive.testRampRate;
+        if (count >= Constants.SwerveDrive.testDelayTime) {
+          appliedSpeed = appliedSpeed + Constants.SwerveDrive.testRampRate;
+        } else {
+          appliedSpeed = 0.0;
+        }
         appliedAngle = 0.0;
-      }
-    }
 
-    if (isAngularMotionTest) {
-      if (swerve.getAngularVelocity()>= Constants.SwerveDrive.testEndAngularVelocity) {
-        SmartDashboard.putNumber("SwerveDrive test ending velocity: ", swerve.getAngularVelocity());
-        SmartDashboard.putNumber("SwerveDrive test ending appliedSpeed: ", appliedSpeed);
-        SmartDashboard.putNumber("SwerveDrive test ending front left appliedVoltage: ", swerve.getFrontLeftVoltage());
-        SmartDashboard.putNumber("SwerveDrive test ending back left appliedVoltage: ", swerve.getBackLeftVoltage());
-
-        isAngularMotionTest = false;
-        testsFinished = true;
-      } else {
-        appliedSpeed = appliedSpeed + Constants.SwerveDrive.testRampRate;
-        swerve.setFrontLeft(appliedSpeed, 45);
-        swerve.setFrontRight(appliedSpeed, 135);
-        swerve.setBackLeft(appliedSpeed, 45);
-        swerve.setBackRight(appliedSpeed, 135);
+        count++;
       }
     }
 
@@ -175,6 +165,25 @@ public class AdvancedSwerveDriveCommand extends Command {
       swerve.setFrontRight(appliedSpeed, appliedAngle);
       swerve.setBackLeft(appliedSpeed, appliedAngle);
       swerve.setBackRight(appliedSpeed, appliedAngle);
+    }
+
+    
+    if (isAngularMotionTest) {
+      if (swerve.getAngularVelocity() >= Constants.SwerveDrive.testEndAngularVelocity) {
+        SmartDashboard.putNumber("SwerveDrive test ending velocity: ", swerve.getAngularVelocity());
+        SmartDashboard.putNumber("SwerveDrive test ending appliedSpeed: ", appliedSpeed);
+        SmartDashboard.putNumber("SwerveDrive test ending front left appliedVoltage: ", swerve.getFrontLeftVoltage());
+        SmartDashboard.putNumber("SwerveDrive test ending back left appliedVoltage: ", swerve.getBackLeftVoltage());
+
+        isAngularMotionTest = false;
+        testsFinished = true;
+      } else {
+        appliedSpeed = appliedSpeed + Constants.SwerveDrive.testRampRate;
+        swerve.setFrontLeft(appliedSpeed, 35);
+        swerve.setFrontRight(appliedSpeed, 125);
+        swerve.setBackLeft(appliedSpeed, 35);
+        swerve.setBackRight(appliedSpeed, 125);
+      }
     }
 
     SmartDashboard.putNumber("AppliedSpeed ", appliedSpeed);

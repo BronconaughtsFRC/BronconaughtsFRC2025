@@ -89,10 +89,6 @@ public class RobotContainer {
 
     //NamedCommands.registerCommand("AlignThenShoot", somethingIDK);
 
-    SmartDashboard.putNumber("Arm Encoder ", m_armSubsystem.getEncoderValue());
-    SmartDashboard.putNumber("LinearSlide Encoder ", m_linearSlideSubsystem.getEncoderValue());
-    SmartDashboard.putNumber("Lift Encoder", m_liftSubsystem.getEncoderValue());
-
     configureBindings();
   }
 
@@ -100,6 +96,11 @@ public class RobotContainer {
     // Schedule `ExampleCommand` when `exampleCondition` changes to `true`
     new Trigger(m_exampleSubsystem::exampleCondition)
         .onTrue(new ExampleCommand(m_exampleSubsystem));
+
+    
+    SmartDashboard.putNumber("Arm Encoder ", m_armSubsystem.getEncoderValue());
+    //SmartDashboard.putNumber("LinearSlide Encoder ", m_linearSlideSubsystem.getEncoderValue());
+    SmartDashboard.putNumber("Lift Encoder", m_liftSubsystem.getEncoderValue());
 
     SmartDashboard.putNumber("Joystick X ", mathExtras.deadband(driverJoystick.getX(), Constants.OperatorConstants.deadband));
     SmartDashboard.putNumber("Joystick Y ", mathExtras.deadband(driverJoystick.getY(), Constants.OperatorConstants.deadband));
@@ -122,7 +123,7 @@ public class RobotContainer {
       turnSpeedY = -1.0;
     }
 
-    new JoystickButton(driverJoystick, 11).whileTrue(new AdvancedSwerveDriveCommand(m_swerveSubsystem, false));
+    new JoystickButton(driverJoystick, 11).whileTrue(new AdvancedSwerveDriveCommand(m_swerveSubsystem, true));
     new JoystickButton(driverJoystick, 12).whileTrue(new AdvancedSwerveDriveCommand(
       m_swerveSubsystem,
        ()-> driverJoystick.getY(),
@@ -139,6 +140,16 @@ public class RobotContainer {
       m_swerveSubsystem.getCurrentAngle()));
     new JoystickButton(driverJoystick, 16).whileTrue(m_visionSubsystem.moveAndAlignTowardAprilTag(m_swerveSubsystem));
 
+    //new JoystickButton(driverJoystick, 15).onTrue(new InstantCommand (()->m_armSubsystem.setSetpoint(45, m_linearSlideSubsystem.getHight())));
+    new JoystickButton(driverJoystick, 14).onTrue(new InstantCommand (()->m_armSubsystem.setSetpoint(45, m_linearSlideSubsystem.getHight())));
+
+    new JoystickButton(driverJoystick, 15).whileTrue(new RunCommand (()->m_linearSlideSubsystem.increaseSetpoint(m_armSubsystem.getCurrentAngle())));
+
+    new JoystickButton(driverJoystick, 7).whileTrue(new RunCommand (()->m_linearSlideSubsystem.setMotors(0.3)));
+
+
+    //new JoystickButton(driverJoystick, 15).whileTrue(new RunCommand (()->m_armSubsystem.setMotor(0.3))).onFalse(new RunCommand (()->m_armSubsystem.setMotor(0.0)));
+
     //new JoystickButton(driverJoystick, 15).whileTrue(new RunCommand (()->m_liftSubsystem.unsafeSpeed(-0.3))).onFalse(new RunCommand (()->m_liftSubsystem.unsafeSpeed(0.0)));
     //new JoystickButton(driverJoystick, 14).whileTrue(new RunCommand (()->m_liftSubsystem.unsafeSpeed(0.3))).onFalse(new RunCommand (()->m_liftSubsystem.unsafeSpeed(0.0)));
 
@@ -149,8 +160,8 @@ public class RobotContainer {
 
     //new JoystickButton(driverJoystick, 15).onTrue(new InstantCommand(()-> m_linearSlideSubsystem.setSetpoint(1, m_armSubsystem.getCurrentAngle()))).onFalse(new InstantCommand(()-> m_linearSlideSubsystem.setSetpoint(0, m_armSubsystem.getCurrentAngle())));
 
-    //new JoystickButton(driverJoystick, 15).whileTrue(new RunCommand (()->m_linearSlideSubsystem.setMotors(0.65))).onFalse(new RunCommand (()->m_linearSlideSubsystem.setMotors(0.0)));
-    //new JoystickButton(driverJoystick, 14).whileTrue(new RunCommand (()->m_linearSlideSubsystem.setMotors(-0.65))).onFalse(new RunCommand (()->m_linearSlideSubsystem.setMotors(0.0)));
+    //new JoystickButton(driverJoystick, 15).whileTrue(new RunCommand (()->m_linearSlideSubsystem.setMotors(0.3))).onFalse(new RunCommand (()->m_linearSlideSubsystem.setMotors(0.0)));
+    //new JoystickButton(driverJoystick, 14).whileTrue(new RunCommand (()->m_linearSlideSubsystem.setMotors(-0.3))).onFalse(new RunCommand (()->m_linearSlideSubsystem.setMotors(0.0)));
 
 
     /*

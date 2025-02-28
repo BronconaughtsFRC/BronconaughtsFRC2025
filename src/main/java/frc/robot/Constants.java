@@ -4,6 +4,8 @@
 
 package frc.robot;
 
+import edu.wpi.first.math.util.Units;
+
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide numerical or boolean
  * constants. This class should not be used for any other purpose. All constants should be declared
@@ -20,8 +22,8 @@ public final class Constants {
   }
 
   public static class Shooter {
-    public static final int leftMotorID = 9;
-    public static final int rightMotorID = 7;
+    public static final int leftMotorID = 13;
+    public static final int rightMotorID = 14;
 
     public static final int iterationsPerSecond = 20;
 
@@ -31,7 +33,7 @@ public final class Constants {
   }
 
   public static class Arm {
-    public static final int armMotorID = 8;
+    public static final int armMotorID = 15;
 
     public static final double kp = 0.02;
     public static final double ki = 0.0;
@@ -39,30 +41,30 @@ public final class Constants {
 
     public static final double angleToGrabOffReef = 45;
 
-    public static final double minSlideHightWhenMoving = 5.0;
+    public static final double minSlideHightWhenMoving = Units.inchesToMeters(50);
 
-    public static final double encoderToAngleCoefficent = 1;
+    public static final double encoderToAngleCoefficent = 12.43583;
 
-    public static final double maxAngle = 1.0;
-    public static final double minAngle = 0.0;
+    public static final double maxAngle = 90.0;
+    public static final double minAngle = -15.0;
   }
 
   public static class LinearSlide {
     public static final int slideMotorID = 16;
     
-    public static final double kp = 0.02;
+    public static final double kp = 2.0; //0.6
     public static final double ki = 0.0;
     public static final double kd = 0.0;
 
-    public static final double slideRampSpeed = 0.1;
+    public static final double slideRampSpeed = 0.01;
 
     public static final double maxArmAngleWhenMoving = 120;
 
-    public static final double encoderToMetersCoefficent = 0.046;
+    public static final double slideHightFromFloor = Units.inchesToMeters(10.25);
 
-    public static final double slideHightFromFloor = 0.2;
+    public static final double encoderToMetersCoefficent = (1.475 / 117);
 
-    public static final double maxHight = 1.405;
+    public static final double maxHight = 1.473 - slideHightFromFloor;
     public static final double minHight = 0.0;
   }
 
@@ -89,9 +91,10 @@ public final class Constants {
     public static final double testEndVelocity = 1.5;
     public static final double testEndAngularVelocity = 120;
     public static final double testRampRate = 0.0025;
+    public static final int testDelayTime = 60; //iterations
 
-    public static final double metersPerSecondWhileTesting = 2.0;
-    public static final double voltageWhileTestingMotion = 8.0;
+    public static final double metersPerSecondWhileTesting = 1.503731;
+    public static final double voltageWhileTestingMotion = 4.349653;
 
     public static final double degreesPerSecondWhileTesting = 120.0;
     public static final double voltageWhileTestingAngularRotation = 6.0;
