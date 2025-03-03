@@ -29,7 +29,7 @@ public class VisionSubsystem extends SubsystemBase {
 
   int count = 0;
 
-  double mountAngle, lensHight, goalHight = 0.0;
+  double mountAngle, lensHeight, goalHeight = 0.0;
 
   public VisionSubsystem() {
     pipelineNumber = 0;
@@ -64,7 +64,7 @@ public class VisionSubsystem extends SubsystemBase {
       speedmultiplier = -1.0;
 
       mountAngle = 0.0;
-      lensHight = 0.4318;
+      lensHeight = 0.4318;
     } else {
       tx = table2.getEntry("tx");
       ty = table2.getEntry("ty");
@@ -77,7 +77,7 @@ public class VisionSubsystem extends SubsystemBase {
       speedmultiplier = 1.0;
 
       mountAngle = 0.0;
-      lensHight = 0.889;
+      lensHeight = 0.889;
     }
 
     if (area == 0.0) {
@@ -101,6 +101,8 @@ public class VisionSubsystem extends SubsystemBase {
       y = 0.0;
       area = 0.0;
     }
+
+    SmartDashboard.putNumber("Ty ", y);
   }
 
   public void setPipeline(int number) {
@@ -125,7 +127,7 @@ public class VisionSubsystem extends SubsystemBase {
       speedmultiplier = -1.0;
 
       mountAngle = 0.0;
-      lensHight = 0.4318;
+      lensHeight = 0.4318;
 
     } else {
       tx = table2.getEntry("tx");
@@ -139,7 +141,7 @@ public class VisionSubsystem extends SubsystemBase {
       speedmultiplier = 1.0;
 
       mountAngle = 0.0;
-      lensHight = 0.889;
+      lensHeight = 0.889;
     }
 
     if (area == 0.0) {
@@ -320,19 +322,19 @@ public class VisionSubsystem extends SubsystemBase {
     }
 
     if (pipeline == 0) {
-      goalHight = 0.3048;
+      goalHeight = 0.3048;
     } if (pipeline == 1) {
-      goalHight = 0.2032;
+      goalHeight = 0.2032;
     } else {
-      goalHight = 1.7145;
+      goalHeight = 1.7145;
     }
 
     double angleToGoalDegrees = mountAngle + y;
 
     double angleToGoalRadians = Units.degreesToRadians(angleToGoalDegrees);
 
-    SmartDashboard.putNumber("Distance Via Limelight ", (goalHight - lensHight) / Math.tan(angleToGoalRadians));
-    return (goalHight - lensHight) / Math.tan(angleToGoalRadians);
+    SmartDashboard.putNumber("Distance Via Limelight ", (goalHeight - lensHeight) / Math.tan(Math.abs(angleToGoalRadians)));
+    return (goalHeight - lensHeight) / Math.tan(Math.abs(angleToGoalRadians));
   }
 
   public double calculatePerfectShot(double targetHight, double range, double vi, ArmSubsystem arm, LinearSlideSubsystem slide) {

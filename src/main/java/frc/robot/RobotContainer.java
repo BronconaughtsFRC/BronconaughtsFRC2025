@@ -43,12 +43,12 @@ public class RobotContainer {
   private final SwerveSubsystem m_swerveSubsystem = new SwerveSubsystem();
   private final VisionSubsystem m_visionSubsystem = new VisionSubsystem();
 
-  /*
+  
   private final ShooterSubsystem m_shooterSubsystem = new ShooterSubsystem();
   private final ArmSubsystem m_armSubsystem = new ArmSubsystem();
   private final LinearSlideSubsystem m_linearSlideSubsystem = new LinearSlideSubsystem();
   private final LiftSubsystem m_liftSubsystem = new LiftSubsystem();
-  */
+  
 
   private final SendableChooser<Command> autoChooser;
 
@@ -125,9 +125,10 @@ public class RobotContainer {
 
     //new JoystickButton(driverJoystick, 16).whileTrue(m_visionSubsystem.moveAndAlignTowardAprilTag(m_swerveSubsystem));
 
-    new JoystickButton(driverJoystick, 15).whileTrue(m_visionSubsystem.turnTowardPoint(m_swerveSubsystem, 0.0, 2.0));
-    new JoystickButton(driverJoystick, 16).whileTrue(new RunCommand(()-> m_swerveSubsystem.setAll(1, 0), m_swerveSubsystem));
+    //new JoystickButton(driverJoystick, 15).whileTrue(m_visionSubsystem.turnTowardPoint(m_swerveSubsystem, 0.0, 2.0));
+    //new JoystickButton(driverJoystick, 16).whileTrue(new RunCommand(()-> m_swerveSubsystem.setAll(1, 0), m_swerveSubsystem));
 
+    //SmartDashboard.putNumber("Distance Limelight ", m_visionSubsystem.getDistanceFromTarget(0));
 
     /*
     new JoystickButton(driverJoystick, 11).whileTrue(new AdvancedSwerveDriveCommand(m_swerveSubsystem, true));
@@ -148,7 +149,7 @@ public class RobotContainer {
     new JoystickButton(driverJoystick, 16).whileTrue(m_visionSubsystem.moveAndAlignTowardAprilTag(m_swerveSubsystem));
     */
 
-    /*
+    
     new JoystickButton(driverJoystick, 7).onTrue(new InstantCommand (()->m_armSubsystem.setSetpoint(45, m_linearSlideSubsystem.getHight())));
     new JoystickButton(driverJoystick, 6).onTrue(new InstantCommand (()->m_armSubsystem.setSetpoint(0, m_linearSlideSubsystem.getHight())));
 
@@ -157,7 +158,7 @@ public class RobotContainer {
     
     new JoystickButton(driverJoystick, 8).whileTrue(new RunCommand (()->m_shooterSubsystem.setBothMotors(Constants.Shooter.speedToPickup))).onFalse(new RunCommand (()-> m_shooterSubsystem.setBothMotors(0)));
     new JoystickButton(driverJoystick, 9).whileTrue(new RunCommand (()->m_shooterSubsystem.setBothMotors(1.0))).onFalse(new RunCommand (()-> m_shooterSubsystem.setBothMotors(0)));
-    */
+    
 
     //new JoystickButton(driverJoystick, 7).whileTrue(new RunCommand (()->m_linearSlideSubsystem.setMotors(0.3)));
 
