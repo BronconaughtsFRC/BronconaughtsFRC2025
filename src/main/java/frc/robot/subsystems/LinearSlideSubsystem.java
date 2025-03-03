@@ -27,17 +27,17 @@ public class LinearSlideSubsystem extends SubsystemBase {
   }
 
   public void setSetpoint(double setpoint, double armAngle) {
-    if (!(armAngle > Constants.LinearSlide.maxArmAngleWhenMoving)) {
+    if ((armAngle < Constants.LinearSlide.maxArmAngleWhenMoving)) {
       slideSetpoint = mathExtras.codeStop(setpoint, Constants.LinearSlide.minHight, Constants.LinearSlide.maxHight);
     }
   }
   public void increaseSetpoint(double armAngle) {
-    if (!(armAngle > Constants.LinearSlide.maxArmAngleWhenMoving)) {
+    if ((armAngle < Constants.LinearSlide.maxArmAngleWhenMoving)) {
       slideSetpoint = mathExtras.codeStop(slideSetpoint + Constants.LinearSlide.slideRampSpeed, Constants.LinearSlide.minHight, Constants.LinearSlide.maxHight);
     }
   }
   public void decreaseSetpoint(double armAngle) {
-    if (!(armAngle > Constants.LinearSlide.maxArmAngleWhenMoving)) {
+    if ((armAngle < Constants.LinearSlide.maxArmAngleWhenMoving)) {
       slideSetpoint = mathExtras.codeStop(slideSetpoint - Constants.LinearSlide.slideRampSpeed, Constants.LinearSlide.minHight, Constants.LinearSlide.maxHight);
     }
   }
@@ -48,13 +48,12 @@ public class LinearSlideSubsystem extends SubsystemBase {
 
   @Override
   public void periodic() {
-    SmartDashboard.putNumber("SlideMotor Get Encoder Value ", getEncoderValue());
-
-    SmartDashboard.putNumber("Linear Slide Setpoint ", getSetpoint());
+    SmartDashboard.putNumber("Slide Setpoint ", getSetpoint());
 
     // This method will be called once per scheduler run
     slideCurrent = slideMotor.getEncoder().getPosition() * Constants.LinearSlide.encoderToMetersCoefficent;
-    SmartDashboard.putNumber("SlideCurrent ", slideCurrent);
+    SmartDashboard.putNumber("Slide Current  ", slideCurrent);
+    SmartDashboard.putNumber("Slide Motor Output ", slideMotor.get());
 
     slideMotor.set(pid.calculate(slideCurrent, slideSetpoint));
   }

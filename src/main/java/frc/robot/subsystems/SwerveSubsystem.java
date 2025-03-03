@@ -61,10 +61,12 @@ public class SwerveSubsystem extends SubsystemBase {
     SwerveDriveTelemetry.verbosity = TelemetryVerbosity.HIGH;
     modules = swerveDrive.getModules();
     
+    /* 
     for (int count = 0; count < modules.length; count++) {
       SmartDashboard.putNumber("Module Number " + count + " absolute pos", modules[count].getAbsolutePosition());
       SmartDashboard.putNumber("Module Number " + count + " raw absolute pos", modules[count].getRawAbsolutePosition());
     }
+    */
 
     try {
       robotConfig = RobotConfig.fromGUISettings();
@@ -135,13 +137,14 @@ public class SwerveSubsystem extends SubsystemBase {
   {
     
     return run(() -> {
-      setHeadingCorrection(true);
+      setHeadingCorrection(false);
       // Make the robot move
-      swerveDrive.drive(new Translation2d(translationX.getAsDouble() * swerveDrive.getMaximumChassisVelocity(),
-                                          translationY.getAsDouble() * swerveDrive.getMaximumChassisVelocity()),
-                        angularRotationX.getAsDouble() * swerveDrive.getMaximumChassisAngularVelocity(),
-                        false,
-                        false);
+      swerveDrive.driveFieldOriented(
+        new ChassisSpeeds(
+          translationX.getAsDouble() * swerveDrive.getMaximumChassisVelocity(),
+          translationY.getAsDouble() * swerveDrive.getMaximumChassisVelocity(),
+          angularRotationX.getAsDouble() * swerveDrive.getMaximumChassisAngularVelocity())
+        );
     });
   }
 
@@ -188,6 +191,15 @@ public class SwerveSubsystem extends SubsystemBase {
   }
   public double getBackRightVoltage() {
     return modules[3].getDriveMotor().getVoltage();
+  }
+
+  public void setAll(double speed, double angle) {
+    setFrontLeft(speed, angle);
+    setFrontRight(speed, angle);
+    setBackLeft(speed, angle);
+    setBackRight(speed, angle);
+
+    SmartDashboard.putNumber("Drive Speed ", swerveDrive.getRobotVelocity().vxMetersPerSecond);
   }
   
   public void setFrontLeft(double speed, double angle) {

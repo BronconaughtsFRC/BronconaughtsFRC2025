@@ -29,17 +29,21 @@ public final class Constants {
 
     public static final double secondsToShoot = 1.0;
 
-    public static final double speedToPickup = -0.6;
+    public static final double speedToPickup = -0.2;
   }
 
   public static class Arm {
     public static final int armMotorID = 15;
 
-    public static final double kp = 0.02;
+    public static final double kp = 0.04;
     public static final double ki = 0.0;
     public static final double kd = 0.0;
 
+    public static final double startingAngle = -27.5;
+
     public static final double angleToGrabOffReef = 45;
+
+    public static final double maxSetpointWhileDown = 75;
 
     public static final double minSlideHightWhenMoving = Units.inchesToMeters(50);
 
@@ -47,12 +51,14 @@ public final class Constants {
 
     public static final double maxAngle = 90.0;
     public static final double minAngle = -15.0;
+
+    public static final double maxSpeed = 0.3;
   }
 
   public static class LinearSlide {
     public static final int slideMotorID = 16;
     
-    public static final double kp = 2.0; //0.6
+    public static final double kp = 15.0; //0.6
     public static final double ki = 0.0;
     public static final double kd = 0.0;
 
@@ -64,7 +70,7 @@ public final class Constants {
 
     public static final double encoderToMetersCoefficent = (1.475 / 117);
 
-    public static final double maxHight = 1.473 - slideHightFromFloor;
+    public static final double maxHight = 1.475 - slideHightFromFloor;
     public static final double minHight = 0.0;
   }
 
@@ -89,15 +95,15 @@ public final class Constants {
     public static final double interationsPerSecond = 20;
 
     public static final double testEndVelocity = 1.5;
-    public static final double testEndAngularVelocity = 120;
+    public static final double testEndAngularVelocity = 4;
     public static final double testRampRate = 0.0025;
-    public static final int testDelayTime = 60; //iterations
+    public static final int testDelayTime = 60; //in iterations
 
     public static final double metersPerSecondWhileTesting = 1.503731;
     public static final double voltageWhileTestingMotion = 4.349653;
 
-    public static final double degreesPerSecondWhileTesting = 120.0;
-    public static final double voltageWhileTestingAngularRotation = 6.0;
+    public static final double degreesPerSecondWhileTesting = 4;
+    public static final double voltageWhileTestingAngularRotation = 5.215897;
 
     public static double RoFtMBasedVolts(double targetMetersPerSecond) {
       return Math.pow(voltageWhileTestingMotion, (targetMetersPerSecond / metersPerSecondWhileTesting)); 
@@ -108,12 +114,13 @@ public final class Constants {
   }
 
   public static class Vision {
-    public static final double turnKp = 0.01;
-    public static final double driveToDistanceKp = 0.4; //0.8 for carpet maybe. Kp to convert area to meters.
-    public static final double distanceKp = 0.4; 
+    public static final double turnKp = 0.018;
+    public static final double driveToDistanceKp = 0.2; //0.8 for carpet maybe. 
+    public static final double distanceKp = 5.735; //Kp to convert area to meters.
     public static final double slideMovementKp = 0.01;
 
-    public static final double largestPossibleVisionArea = 20;
+    public static final double largestPossibleTagVisionArea = 1.6;
+    public static final double largestPossibleBallVisionArea = 2;
     public static final double areaDeadband = 0.05;
     public static final double areaDedectionDeadband = 0.005; //Zero for no deadband.
 
@@ -131,7 +138,9 @@ public final class Constants {
       return Math.pow(voltageWhileTestingShot, (currentDistance / distanceWhileTestingShot)); 
     } //Ratio of Force to Distance. Something I made up for my math.
 
-    public static final double targetHightRampSpeed = 0.1; //In meters per second. Higher will make the shot less accurate, but shooter sooner if there is delay.
+    public static final double targetHightRampSpeed = 0.1; //In meters per second. Higher will make the shot less accurate, but shoot sooner if there is delay.
+
+    public static final double maxTurnSpeedForTurnToPoint = 0.3;
   }
 
   public static class FieldConstants {

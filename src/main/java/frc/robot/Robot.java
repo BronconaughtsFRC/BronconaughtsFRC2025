@@ -31,7 +31,10 @@ public class Robot extends TimedRobot {
     m_robotContainer = new RobotContainer();
 
     for (int port = 5800; port <= 5809; port++) {
-      PortForwarder.add(port, "limelight.local", port);
+      PortForwarder.add(port, "limelight.broncoa", port);
+    }
+    for (int port = 5810; port <= 5819; port++) {
+      PortForwarder.add(port, "limelight.broncob", port);
     }
 
     FollowPathCommand.warmupCommand().schedule();

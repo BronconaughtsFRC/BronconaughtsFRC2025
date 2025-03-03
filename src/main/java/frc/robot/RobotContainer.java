@@ -43,10 +43,12 @@ public class RobotContainer {
   private final SwerveSubsystem m_swerveSubsystem = new SwerveSubsystem();
   private final VisionSubsystem m_visionSubsystem = new VisionSubsystem();
 
-  //private final ShooterSubsystem m_shooterSubsystem = new ShooterSubsystem();
+  /*
+  private final ShooterSubsystem m_shooterSubsystem = new ShooterSubsystem();
   private final ArmSubsystem m_armSubsystem = new ArmSubsystem();
   private final LinearSlideSubsystem m_linearSlideSubsystem = new LinearSlideSubsystem();
   private final LiftSubsystem m_liftSubsystem = new LiftSubsystem();
+  */
 
   private final SendableChooser<Command> autoChooser;
 
@@ -60,6 +62,11 @@ public class RobotContainer {
   public RobotContainer() {
     // Configure the trigger bindings
     m_visionSubsystem.turnTowardAprilTag(m_swerveSubsystem).addRequirements(m_swerveSubsystem);
+    m_visionSubsystem.moveTowardAprilTag(m_swerveSubsystem).addRequirements(m_swerveSubsystem);
+    m_visionSubsystem.moveAndAlignTowardAprilTag(m_swerveSubsystem).addRequirements(m_swerveSubsystem);
+    m_visionSubsystem.strafeTowardAlgaeBall(m_swerveSubsystem).addRequirements(m_swerveSubsystem);
+    //m_visionSubsystem.pickUpTarget(m_swerveSubsystem, m_linearSlideSubsystem, m_armSubsystem, m_shooterSubsystem).addRequirements(m_swerveSubsystem);
+    m_visionSubsystem.turnTowardPoint(m_swerveSubsystem, 0, 0).addRequirements(m_swerveSubsystem);
 
     m_swerveSubsystem.setDefaultCommand(m_swerveSubsystem.driveCommand(
       ()-> -mathExtras.deadband(driverJoystick.getY(), Constants.OperatorConstants.deadband),
@@ -97,18 +104,11 @@ public class RobotContainer {
     new Trigger(m_exampleSubsystem::exampleCondition)
         .onTrue(new ExampleCommand(m_exampleSubsystem));
 
-    
-    SmartDashboard.putNumber("Arm Encoder ", m_armSubsystem.getEncoderValue());
-    //SmartDashboard.putNumber("LinearSlide Encoder ", m_linearSlideSubsystem.getEncoderValue());
-    SmartDashboard.putNumber("Lift Encoder", m_liftSubsystem.getEncoderValue());
-
+    /* 
     SmartDashboard.putNumber("Joystick X ", mathExtras.deadband(driverJoystick.getX(), Constants.OperatorConstants.deadband));
     SmartDashboard.putNumber("Joystick Y ", mathExtras.deadband(driverJoystick.getY(), Constants.OperatorConstants.deadband));
     SmartDashboard.putNumber("Joystick Z ", mathExtras.deadband(driverJoystick.getZ(), Constants.OperatorConstants.deadband));
-
-    SmartDashboard.putNumber("Limelight TX Pipeline 0 ", m_visionSubsystem.getTx(0));
-    SmartDashboard.putNumber("Limelight TX Pipeline 1 ", m_visionSubsystem.getTx(1));
-    SmartDashboard.putNumber("Limelight TX Pipeline 2 ", m_visionSubsystem.getTx(2));
+    */
 
     // Schedule `exampleMethodCommand` when the Xbox controller's B button is pressed,
     // cancelling on release.
@@ -123,6 +123,13 @@ public class RobotContainer {
       turnSpeedY = -1.0;
     }
 
+    //new JoystickButton(driverJoystick, 16).whileTrue(m_visionSubsystem.moveAndAlignTowardAprilTag(m_swerveSubsystem));
+
+    new JoystickButton(driverJoystick, 15).whileTrue(m_visionSubsystem.turnTowardPoint(m_swerveSubsystem, 0.0, 2.0));
+    new JoystickButton(driverJoystick, 16).whileTrue(new RunCommand(()-> m_swerveSubsystem.setAll(1, 0), m_swerveSubsystem));
+
+
+    /*
     new JoystickButton(driverJoystick, 11).whileTrue(new AdvancedSwerveDriveCommand(m_swerveSubsystem, true));
     new JoystickButton(driverJoystick, 12).whileTrue(new AdvancedSwerveDriveCommand(
       m_swerveSubsystem,
@@ -139,13 +146,20 @@ public class RobotContainer {
       ()-> m_swerveSubsystem.getCurrentAngle(),
       m_swerveSubsystem.getCurrentAngle()));
     new JoystickButton(driverJoystick, 16).whileTrue(m_visionSubsystem.moveAndAlignTowardAprilTag(m_swerveSubsystem));
+    */
 
-    //new JoystickButton(driverJoystick, 15).onTrue(new InstantCommand (()->m_armSubsystem.setSetpoint(45, m_linearSlideSubsystem.getHight())));
-    new JoystickButton(driverJoystick, 14).onTrue(new InstantCommand (()->m_armSubsystem.setSetpoint(45, m_linearSlideSubsystem.getHight())));
+    /*
+    new JoystickButton(driverJoystick, 7).onTrue(new InstantCommand (()->m_armSubsystem.setSetpoint(45, m_linearSlideSubsystem.getHight())));
+    new JoystickButton(driverJoystick, 6).onTrue(new InstantCommand (()->m_armSubsystem.setSetpoint(0, m_linearSlideSubsystem.getHight())));
 
     new JoystickButton(driverJoystick, 15).whileTrue(new RunCommand (()->m_linearSlideSubsystem.increaseSetpoint(m_armSubsystem.getCurrentAngle())));
+    new JoystickButton(driverJoystick, 14).whileTrue(new RunCommand (()->m_linearSlideSubsystem.decreaseSetpoint(m_armSubsystem.getCurrentAngle())));
+    
+    new JoystickButton(driverJoystick, 8).whileTrue(new RunCommand (()->m_shooterSubsystem.setBothMotors(Constants.Shooter.speedToPickup))).onFalse(new RunCommand (()-> m_shooterSubsystem.setBothMotors(0)));
+    new JoystickButton(driverJoystick, 9).whileTrue(new RunCommand (()->m_shooterSubsystem.setBothMotors(1.0))).onFalse(new RunCommand (()-> m_shooterSubsystem.setBothMotors(0)));
+    */
 
-    new JoystickButton(driverJoystick, 7).whileTrue(new RunCommand (()->m_linearSlideSubsystem.setMotors(0.3)));
+    //new JoystickButton(driverJoystick, 7).whileTrue(new RunCommand (()->m_linearSlideSubsystem.setMotors(0.3)));
 
 
     //new JoystickButton(driverJoystick, 15).whileTrue(new RunCommand (()->m_armSubsystem.setMotor(0.3))).onFalse(new RunCommand (()->m_armSubsystem.setMotor(0.0)));

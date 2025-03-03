@@ -9,52 +9,147 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.lib.mathExtras;
 import frc.robot.Constants;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 
 public class VisionSubsystem extends SubsystemBase {
   /** Creates a new VisionSubsystem. */
-  public double x, y, area;
+  public double x, y, area, oldX, oldY, oldArea, speedmultiplier;
 
   public int pipelineNumber = 0;
 
+  NetworkTable table1, table2;
+  NetworkTableEntry tx, ty, ta;
+
+  int count = 0;
+
+  double mountAngle, lensHight, goalHight = 0.0;
+
   public VisionSubsystem() {
-    
+    pipelineNumber = 0;
+    count = 0;
   }
 
   @Override
   public void periodic() {
+    //SmartDashboard.putNumber("Limelight TX Pipeline 0 ", m_visionSubsystem.getTx(0));
+    //SmartDashboard.putNumber("Limelight TX Pipeline 1 ", m_visionSubsystem.getTx(1));
+    //SmartDashboard.putNumber("Limelight TX Pipeline 2 ", m_visionSubsystem.getTx(2));
+
     // This method will be called once per scheduler run
-    NetworkTable table1 = NetworkTableInstance.getDefault().getTable("limelight-broncoa");
-    NetworkTable table2 = NetworkTableInstance.getDefault().getTable("limelight-broncob");
+    table1 = NetworkTableInstance.getDefault().getTable("limelight-broncoa");
+    table2 = NetworkTableInstance.getDefault().getTable("limelight-broncob");
+
     table1.getEntry("pipeline").setNumber(pipelineNumber);
     table2.getEntry("pipeline").setNumber(pipelineNumber);
 
-    NetworkTableEntry tx;
-    NetworkTableEntry ty;
-    NetworkTableEntry ta;
+    SmartDashboard.putNumber("Broncoa Area ", table1.getEntry("ta").getDouble(0.0));
+    SmartDashboard.putNumber("Broncob Area ", table2.getEntry("ta").getDouble(0.0));
 
     if (table1.getEntry("ta").getDouble(0.0) >= table2.getEntry("ta").getDouble(0.0)) {
       tx = table1.getEntry("tx");
       ty = table1.getEntry("ty");
       ta = table1.getEntry("ta");
 
-      y = -ty.getDouble(0.0);
+      y = ty.getDouble(0.0);
+      x = tx.getDouble(0.0);
+      area = ta.getDouble(0.0);
+
+      speedmultiplier = -1.0;
+
+      mountAngle = 0.0;
+      lensHight = 0.4318;
     } else {
       tx = table2.getEntry("tx");
       ty = table2.getEntry("ty");
       ta = table2.getEntry("ta");
 
-      y = ty.getDouble(0.0);
+      y = -(ty.getDouble(0.0));
+      x = -(tx.getDouble(0.0));
+      area = ta.getDouble(0.0);
+
+      speedmultiplier = 1.0;
+
+      mountAngle = 0.0;
+      lensHight = 0.889;
     }
 
-    //read values periodically
-    x = tx.getDouble(0.0);
-    area = ta.getDouble(0.0);
+    if (area == 0.0) {
+      if (!(oldArea == 0.0) && count < 5) {
+        count++;
+        area = oldArea;
+        x = oldX;
+        y = oldY;
+      }
+    }
+
+    SmartDashboard.putNumber("area ", area);
+    SmartDashboard.putNumber("tx ", x);
+
+    if (area < Constants.Vision.areaDeadband) {
+      area = 0;
+    }
+
+    if (area < Constants.Vision.areaDedectionDeadband) {
+      x = 0.0;
+      y = 0.0;
+      area = 0.0;
+    }
+  }
+
+  public void setPipeline(int number) {
+    pipelineNumber = number;
+    
+    table1 = NetworkTableInstance.getDefault().getTable("limelight-broncoa");
+    table2 = NetworkTableInstance.getDefault().getTable("limelight-broncob");
+    
+    table1.getEntry("pipeline").setNumber(pipelineNumber);
+    table2.getEntry("pipeline").setNumber(pipelineNumber);
+
+    if (table1.getEntry("ta").getDouble(0.0) >= table2.getEntry("ta").getDouble(0.0)) {
+      tx = table1.getEntry("tx");
+      ty = table1.getEntry("ty");
+      ta = table1.getEntry("ta");
+
+      y = ty.getDouble(0.0);
+      x = tx.getDouble(0.0);
+      area = ta.getDouble(0.0);
+
+      
+      speedmultiplier = -1.0;
+
+      mountAngle = 0.0;
+      lensHight = 0.4318;
+
+    } else {
+      tx = table2.getEntry("tx");
+      ty = table2.getEntry("ty");
+      ta = table2.getEntry("ta");
+
+      y = -(ty.getDouble(0.0));
+      x = -(tx.getDouble(0.0));
+      area = ta.getDouble(0.0);
+
+      speedmultiplier = 1.0;
+
+      mountAngle = 0.0;
+      lensHight = 0.889;
+    }
+
+    if (area == 0.0) {
+      if (!(oldArea == 0.0) && count < 5) {
+        count++;
+        area = oldArea;
+        x = oldX;
+        y = oldY;
+      }
+    }
 
     if (area < Constants.Vision.areaDeadband) {
       area = 0;
@@ -66,11 +161,9 @@ public class VisionSubsystem extends SubsystemBase {
       area = 0.0;
     }
 
-    SmartDashboard.putNumber("area ", area);
-  }
-
-  public void setPipeline(int number) {
-    pipelineNumber = number;
+    oldArea = area;
+    oldX = x;
+    oldY = y;
   }
 
   public Command turnTowardAprilTag(SwerveSubsystem swerve) {
@@ -92,13 +185,12 @@ public class VisionSubsystem extends SubsystemBase {
         setPipeline(0);
 
         if (!(area == 0)) {
-          
         swerve.setHeadingCorrection(false);
 
-        swerve.setFrontLeft((Constants.Vision.largestPossibleVisionArea - area) * Constants.Vision.distanceKp, 0.0);
-        swerve.setFrontRight((Constants.Vision.largestPossibleVisionArea - area) * Constants.Vision.distanceKp, 0.0);
-        swerve.setBackLeft((Constants.Vision.largestPossibleVisionArea - area) * Constants.Vision.distanceKp, 0.0);
-        swerve.setBackRight((Constants.Vision.largestPossibleVisionArea - area) * Constants.Vision.distanceKp, 0.0);
+        swerve.setFrontLeft(((Constants.Vision.largestPossibleTagVisionArea - area) * Constants.Vision.distanceKp) * speedmultiplier, 0.0);
+        swerve.setFrontRight(((Constants.Vision.largestPossibleTagVisionArea - area) * Constants.Vision.distanceKp) * speedmultiplier, 0.0);
+        swerve.setBackLeft(((Constants.Vision.largestPossibleTagVisionArea - area) * Constants.Vision.distanceKp) * speedmultiplier, 0.0);
+        swerve.setBackRight(((Constants.Vision.largestPossibleTagVisionArea - area) * Constants.Vision.distanceKp) * speedmultiplier, 0.0);
         }
       }
     );
@@ -111,10 +203,10 @@ public class VisionSubsystem extends SubsystemBase {
         if (!(area == 0)) {
           swerve.setHeadingCorrection(false);
 
-        swerve.setFrontLeft((Constants.Vision.largestPossibleVisionArea - area) * Constants.Vision.driveToDistanceKp + (x * Constants.Vision.turnKp), 0.0);
-        swerve.setFrontRight((Constants.Vision.largestPossibleVisionArea - area) * Constants.Vision.driveToDistanceKp + (-(x * Constants.Vision.turnKp)), 0.0);
-        swerve.setBackLeft((Constants.Vision.largestPossibleVisionArea - area) * Constants.Vision.driveToDistanceKp + (x * Constants.Vision.turnKp), 0.0);
-        swerve.setBackRight((Constants.Vision.largestPossibleVisionArea - area) * Constants.Vision.driveToDistanceKp + (-(x * Constants.Vision.turnKp)), 0.0);
+        swerve.setFrontLeft((((Constants.Vision.largestPossibleTagVisionArea - area) * Constants.Vision.distanceKp) * speedmultiplier) + (x * Constants.Vision.turnKp), 0.0);
+        swerve.setFrontRight((((Constants.Vision.largestPossibleTagVisionArea - area) * Constants.Vision.distanceKp) * speedmultiplier) + (-(x * Constants.Vision.turnKp)), 0.0);
+        swerve.setBackLeft((((Constants.Vision.largestPossibleTagVisionArea - area) * Constants.Vision.distanceKp) * speedmultiplier) + (x * Constants.Vision.turnKp), 0.0);
+        swerve.setBackRight((((Constants.Vision.largestPossibleTagVisionArea - area) * Constants.Vision.distanceKp) * speedmultiplier) + (-(x * Constants.Vision.turnKp)), 0.0);
         }     
       }
     );
@@ -142,10 +234,11 @@ public class VisionSubsystem extends SubsystemBase {
           //May be able to be improved by averaging the turn need for the angle, like in the AdvancedSwerveDriveCommand.
           swerve.setHeadingCorrection(false);
 
-          swerve.setFrontLeft((Constants.Vision.largestPossibleVisionArea - area) * Constants.Vision.driveToDistanceKp + (x * Constants.Vision.turnKp), 0.0);
-          swerve.setFrontRight((Constants.Vision.largestPossibleVisionArea - area) * Constants.Vision.driveToDistanceKp + (-(x * Constants.Vision.turnKp)), 0.0);
-          swerve.setBackLeft((Constants.Vision.largestPossibleVisionArea - area) * Constants.Vision.driveToDistanceKp + (x * Constants.Vision.turnKp), 0.0);
-          swerve.setBackRight((Constants.Vision.largestPossibleVisionArea - area) * Constants.Vision.driveToDistanceKp + (-(x * Constants.Vision.turnKp)), 0.0);
+          //Might need speed multiplier
+          swerve.setFrontLeft((Constants.Vision.largestPossibleBallVisionArea - area) * Constants.Vision.driveToDistanceKp + (x * Constants.Vision.turnKp), 0.0);
+          swerve.setFrontRight((Constants.Vision.largestPossibleBallVisionArea - area) * Constants.Vision.driveToDistanceKp + (-(x * Constants.Vision.turnKp)), 0.0);
+          swerve.setBackLeft((Constants.Vision.largestPossibleBallVisionArea - area) * Constants.Vision.driveToDistanceKp + (x * Constants.Vision.turnKp), 0.0);
+          swerve.setBackRight((Constants.Vision.largestPossibleBallVisionArea - area) * Constants.Vision.driveToDistanceKp + (-(x * Constants.Vision.turnKp)), 0.0);
 
           if (y > 0) {
             linearSlide.increaseSetpoint(arm.getCurrentAngle());
@@ -165,26 +258,36 @@ public class VisionSubsystem extends SubsystemBase {
     );
   }
 
-  public Command turnTowardPoint(SwerveSubsystem swerve, double x, double y) {
+  public Command turnTowardPoint(SwerveSubsystem swerve, double targetX, double targetY) {
     return run(()-> {
         Pose2d position = swerve.getPose();
 
         double positionX = position.getX();
         double positionY = position.getY();
 
-        double xSide = x - positionX;
-        double ySide = y - positionY;
+        SmartDashboard.putNumber("Pos X ", positionX);
+        SmartDashboard.putNumber("Pos Y ", positionY);
 
-        double hypotenuse = xSide + ySide;
+        double xSide = (targetX - positionX) / Units.inchesToMeters(690.875);
+        double ySide = (targetY - positionY) / Units.inchesToMeters(317);
 
-        double neededAngle = Math.pow(Math.sin(hypotenuse/xSide), -1);
+        SmartDashboard.putNumber("xSide ", xSide);
+        SmartDashboard.putNumber("ySide ", ySide);
+
+        double hypotenuse = Math.sqrt(Math.pow(xSide, 2) + Math.pow(ySide, 2)); //xSide + ySide
+
+        double neededAngle = Math.acos(xSide/hypotenuse);
 
         double turningAngle = swerve.getCurrentAngle() + neededAngle;
 
-        swerve.setFrontLeft((turningAngle * Constants.Vision.turnKp), -45.0);
-        swerve.setFrontRight(-(turningAngle * Constants.Vision.turnKp), 45.0);
-        swerve.setBackLeft((turningAngle * Constants.Vision.turnKp), 45.0);
-        swerve.setBackRight(-(turningAngle * Constants.Vision.turnKp), -45.0);
+        SmartDashboard.putNumber("Current Swerve Angle ", swerve.getCurrentAngle());
+        SmartDashboard.putNumber("Needed Swerve Angle ", neededAngle);
+        SmartDashboard.putNumber("Turning Angle ", turningAngle);
+
+        swerve.setFrontLeft(mathExtras.codeStop((turningAngle * Constants.Vision.turnKp), 0, Constants.Vision.maxTurnSpeedForTurnToPoint), -45.0);
+        swerve.setFrontRight(-mathExtras.codeStop((turningAngle * Constants.Vision.turnKp), 0, Constants.Vision.maxTurnSpeedForTurnToPoint), 45.0);
+        swerve.setBackLeft(mathExtras.codeStop((turningAngle * Constants.Vision.turnKp), 0, Constants.Vision.maxTurnSpeedForTurnToPoint), 45.0);
+        swerve.setBackRight(-mathExtras.codeStop((turningAngle * Constants.Vision.turnKp), 0, Constants.Vision.maxTurnSpeedForTurnToPoint), -45.0);
       }
     );
   }
@@ -215,7 +318,21 @@ public class VisionSubsystem extends SubsystemBase {
     } else {
       setPipeline(pipeline);
     }
-    return Math.pow(area, 2) * Constants.Vision.distanceKp; //Might not be squared
+
+    if (pipeline == 0) {
+      goalHight = 0.3048;
+    } if (pipeline == 1) {
+      goalHight = 0.2032;
+    } else {
+      goalHight = 1.7145;
+    }
+
+    double angleToGoalDegrees = mountAngle + y;
+
+    double angleToGoalRadians = Units.degreesToRadians(angleToGoalDegrees);
+
+    SmartDashboard.putNumber("Distance Via Limelight ", (goalHight - lensHight) / Math.tan(angleToGoalRadians));
+    return (goalHight - lensHight) / Math.tan(angleToGoalRadians);
   }
 
   public double calculatePerfectShot(double targetHight, double range, double vi, ArmSubsystem arm, LinearSlideSubsystem slide) {

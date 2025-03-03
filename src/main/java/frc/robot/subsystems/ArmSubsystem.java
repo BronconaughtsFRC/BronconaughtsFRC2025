@@ -19,28 +19,38 @@ public class ArmSubsystem extends SubsystemBase {
 
   PIDController pid = new PIDController(Constants.Arm.kp, Constants.Arm.ki, Constants.Arm.kd);
 
-  public double angleSetpoint, angleCurrent = 0.0;
+  double angleSetpoint, angleCurrent = 0.0;
+
+  double usedAngleCurrent = 0.0;
 
   public ArmSubsystem() {
     angleSetpoint = 0.0;
     angleCurrent = 0.0;
+
+    usedAngleCurrent = 0.0;
   }
 
   public void setSetpoint(double setpoint, double linearSlideHight) {
-    if (!(linearSlideHight > Constants.Arm.minSlideHightWhenMoving)) {
+    if ((linearSlideHight > Constants.Arm.minSlideHightWhenMoving || setpoint <= Constants.Arm.maxSetpointWhileDown)) {
       angleSetpoint = mathExtras.codeStop(setpoint, Constants.Arm.minAngle, Constants.Arm.maxAngle);
     }
   }
 
   public void setToReefGrab(double linearSlideHight) {
-    if (!(linearSlideHight > Constants.Arm.minSlideHightWhenMoving)) {
+    if ((linearSlideHight > Constants.Arm.minSlideHightWhenMoving || Constants.Arm.angleToGrabOffReef <= Constants.Arm.maxSetpointWhileDown)) {
       angleSetpoint = mathExtras.codeStop(Constants.Arm.angleToGrabOffReef, Constants.Arm.minAngle, Constants.Arm.maxAngle);
     }
   }
 
   public void setToFloorGrab(double linearSlideHight) {
-    if (!(linearSlideHight > Constants.Arm.minSlideHightWhenMoving)) {
+    if ((linearSlideHight > Constants.Arm.minSlideHightWhenMoving || 0 <= Constants.Arm.maxSetpointWhileDown)) {
       angleSetpoint = mathExtras.codeStop(0, Constants.Arm.minAngle, Constants.Arm.maxAngle);
+    }
+  }
+
+  public void rampSetpoint(double linearSlideHight) {
+    if ((linearSlideHight > Constants.Arm.minSlideHightWhenMoving || angleSetpoint + 0.1 <= Constants.Arm.maxSetpointWhileDown)) {
+      angleSetpoint = mathExtras.codeStop(angleSetpoint + 0.1, Constants.Arm.minAngle, Constants.Arm.maxAngle);
     }
   }
 
@@ -52,14 +62,18 @@ public class ArmSubsystem extends SubsystemBase {
   public void periodic() {
     SmartDashboard.putNumber("Arm Encoder ", getEncoderValue());
 
-
     // This method will be called once per scheduler run
-    angleCurrent = armMotor.get() * Constants.Arm.encoderToAngleCoefficent;
-    armMotor.set(pid.calculate(angleCurrent, angleSetpoint));
+    angleCurrent = armMotor.getEncoder().getPosition() * Constants.Arm.encoderToAngleCoefficent;
+    double usedAngleCurrent = angleCurrent + Constants.Arm.startingAngle;
+    armMotor.set(mathExtras.codeStop(pid.calculate(usedAngleCurrent, angleSetpoint), 0.0, Constants.Arm.maxSpeed));
+
+    SmartDashboard.putNumber("Arm Angle ", usedAngleCurrent);
+    SmartDashboard.putNumber("Arm Setpoint ", angleSetpoint);
+    SmartDashboard.putNumber("Arm Motor Output ", armMotor.get());
   }
 
   public double getCurrentAngle() {
-    return angleCurrent;
+    return usedAngleCurrent;
   }
   public double getEncoderValue() {
     return armMotor.getEncoder().getPosition();

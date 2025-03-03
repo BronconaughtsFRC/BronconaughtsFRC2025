@@ -22,6 +22,8 @@ public class AdvancedSwerveDriveCommand extends Command {
 
   boolean isCircle, isMotionTest, isAngularMotionTest, testsFinished = false;
 
+  DoubleSupplier targetSpeedXIn, targetSpeedYIn, targetHeadingIn, turnBySecondsIn;
+
   int count = 0;
 
   public AdvancedSwerveDriveCommand(SwerveSubsystem swerve, DoubleSupplier targetSpeedXIn, DoubleSupplier targetSpeedYIn, DoubleSupplier targetHeadingIn, DoubleSupplier turnBySecondsIn) {
@@ -37,10 +39,12 @@ public class AdvancedSwerveDriveCommand extends Command {
     appliedSpeed = 0.0;
     appliedAngle = 0.0;
 
+    targetAngle = 0.0;
+
     this.swerve = swerve;
-    this.targetSpeedX = targetSpeedXIn.getAsDouble();
-    this.targetSpeedY = targetSpeedYIn.getAsDouble();
-    this.targetHeading = targetHeadingIn.getAsDouble();
+    this.targetSpeedXIn = targetSpeedXIn;
+    this.targetSpeedYIn = targetSpeedYIn;
+    this.targetHeadingIn = targetHeadingIn;
     if (!(turnBySecondsIn == null)) {
       this.turnBySeconds = turnBySecondsIn.getAsDouble();
     } else {
@@ -49,13 +53,18 @@ public class AdvancedSwerveDriveCommand extends Command {
     if (turnBySeconds == 0) {
       turnBySeconds = 1;
     }
+    this.targetSpeedX = targetSpeedXIn.getAsDouble();
+    this.targetSpeedY = targetSpeedYIn.getAsDouble();
+    this.targetHeading = targetHeadingIn.getAsDouble();
 
-    if (!(targetHeading == 0)) {
-      targetAngle = (((90 * targetSpeedY) / (targetSpeedY + targetSpeedX)) + (((targetHeading / 360) * 45) / turnBySeconds)) / 2;
-    } else {
-      targetAngle = ((90 * targetSpeedY) / (targetSpeedY + targetSpeedX));
+    if (!(targetSpeedY == 0.0) && !(targetSpeedX == 0.0)) {
+      if (!(targetHeading == 0)) {
+        targetAngle = (((90 * targetSpeedY) / (targetSpeedY + targetSpeedX)) + (((targetHeading / 360) * 45) / turnBySeconds)) / 2;
+      } else {
+        targetAngle = ((90 * targetSpeedY) / (targetSpeedY + targetSpeedX));
+      }
     }
-
+   
     addRequirements(swerve);
   }
 
@@ -129,7 +138,31 @@ public class AdvancedSwerveDriveCommand extends Command {
       swerve.setBackRight(appliedSpeed, ((currentAngle + (mDegrees *  targetSpeed)) + (((targetHeading / 360) * 135) / (circumference / targetSpeed))) / 2);
 
       
-    } if ((!isMotionTest && !isAngularMotionTest) || !(targetSpeedY == 0.0) || !(targetSpeedX == 0.0)) {
+    } 
+ 
+    if ((!isMotionTest && !isAngularMotionTest)) {
+      if (!(turnBySecondsIn == null)) {
+        turnBySeconds = turnBySecondsIn.getAsDouble();
+      } else {
+        turnBySeconds = targetHeading / Constants.SwerveDrive.maxRotationalSpeed;
+      }
+      if (turnBySeconds == 0) {
+        turnBySeconds = 1;
+      }
+      targetSpeedX = targetSpeedXIn.getAsDouble();
+      targetSpeedY = targetSpeedYIn.getAsDouble();
+      targetHeading = targetHeadingIn.getAsDouble();
+  
+      if (!(targetSpeedY == 0.0) && !(targetSpeedX == 0.0)) {
+        if (!(targetHeading == 0)) {
+          targetAngle = (((90 * targetSpeedY) / (targetSpeedY + targetSpeedX)) + (((targetHeading / 360) * 45) / turnBySeconds)) / 2;
+        } else {
+          targetAngle = ((90 * targetSpeedY) / (targetSpeedY + targetSpeedX));
+        }
+      }
+    }
+
+    if ((!isMotionTest && !isAngularMotionTest) && !(targetSpeedY == 0.0) && !(targetSpeedX == 0.0)) {
       appliedSpeed = Constants.SwerveDrive.RoFtMBasedVolts(targetSpeedX + targetSpeedY) / Constants.SwerveDrive.driveMotorMaxVoltage;
       appliedAngle = ((90 * targetSpeedY) / (targetSpeedY + targetSpeedX));
     }
@@ -155,7 +188,7 @@ public class AdvancedSwerveDriveCommand extends Command {
       }
     }
 
-    if (!(targetHeading == 0)) {
+    if (!(targetHeading == 0) && !(targetSpeedY == 0.0) && !(targetSpeedX == 0.0)) {
       swerve.setFrontLeft(appliedSpeed, ((((90 * targetSpeedY) / (targetSpeedY + targetSpeedX)) + (((targetHeading / 360) * 45) / turnBySeconds)) / 2));
       swerve.setFrontRight(appliedSpeed, ((((90 * targetSpeedY) / (targetSpeedY + targetSpeedX)) + (((targetHeading / 360) * 135) / turnBySeconds)) / 2));
       swerve.setBackLeft(appliedSpeed, ((((90 * targetSpeedY) / (targetSpeedY + targetSpeedX)) + (((targetHeading / 360) * 45) / turnBySeconds)) / 2));
@@ -179,10 +212,15 @@ public class AdvancedSwerveDriveCommand extends Command {
         testsFinished = true;
       } else {
         appliedSpeed = appliedSpeed + Constants.SwerveDrive.testRampRate;
-        swerve.setFrontLeft(appliedSpeed, 35);
+        swerve.setFrontLeft(appliedSpeed, -45);
+        swerve.setFrontRight(-appliedSpeed, 45);
+        swerve.setBackLeft(appliedSpeed, 45);
+        swerve.setBackRight(-appliedSpeed, -45);
+
+        /*swerve.setFrontLeft(appliedSpeed, 35);
         swerve.setFrontRight(appliedSpeed, 125);
         swerve.setBackLeft(appliedSpeed, 35);
-        swerve.setBackRight(appliedSpeed, 125);
+        swerve.setBackRight(appliedSpeed, 125); */ //Spun in circle
       }
     }
 
