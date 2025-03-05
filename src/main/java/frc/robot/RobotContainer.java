@@ -6,7 +6,6 @@ package frc.robot;
 
 import frc.lib.mathExtras;
 import frc.robot.Constants.OperatorConstants;
-import frc.robot.commands.AdvancedSwerveDriveCommand;
 import frc.robot.commands.ExampleCommand;
 import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.ExampleSubsystem;
@@ -130,37 +129,25 @@ public class RobotContainer {
 
     //SmartDashboard.putNumber("Distance Limelight ", m_visionSubsystem.getDistanceFromTarget(0));
 
-    /*
-    new JoystickButton(driverJoystick, 11).whileTrue(new AdvancedSwerveDriveCommand(m_swerveSubsystem, true));
-    new JoystickButton(driverJoystick, 12).whileTrue(new AdvancedSwerveDriveCommand(
-      m_swerveSubsystem,
-       ()-> driverJoystick.getY(),
-       ()-> driverJoystick.getX(),
-       ()-> driverJoystick.getZ() * 360,
-       null));
-    new JoystickButton(driverJoystick, 13).whileTrue(new AdvancedSwerveDriveCommand(
-      m_swerveSubsystem,
-      0.25,
-      90,
-      1,
-      360,
-      ()-> m_swerveSubsystem.getCurrentAngle(),
-      m_swerveSubsystem.getCurrentAngle()));
-    new JoystickButton(driverJoystick, 16).whileTrue(m_visionSubsystem.moveAndAlignTowardAprilTag(m_swerveSubsystem));
-    */
-
+    //new JoystickButton(driverJoystick, 16).whileTrue(m_visionSubsystem.moveAndAlignTowardAprilTag(m_swerveSubsystem));
     
-    new JoystickButton(driverJoystick, 7).onTrue(new InstantCommand (()->m_armSubsystem.setSetpoint(45, m_linearSlideSubsystem.getHight())));
-    new JoystickButton(driverJoystick, 6).onTrue(new InstantCommand (()->m_armSubsystem.setSetpoint(0, m_linearSlideSubsystem.getHight())));
 
-    new JoystickButton(driverJoystick, 15).whileTrue(new RunCommand (()->m_linearSlideSubsystem.increaseSetpoint(m_armSubsystem.getCurrentAngle())));
-    new JoystickButton(driverJoystick, 14).whileTrue(new RunCommand (()->m_linearSlideSubsystem.decreaseSetpoint(m_armSubsystem.getCurrentAngle())));
+    new JoystickButton(driverJoystick, 7).whileTrue(new RunCommand (()->m_armSubsystem.rampSetpoint(m_linearSlideSubsystem.getHight(), 0.5)));
+    new JoystickButton(driverJoystick, 6).whileTrue(new RunCommand (()->m_armSubsystem.rampSetpoint(m_linearSlideSubsystem.getHight(), -0.5)));
+
+
+    //new JoystickButton(driverJoystick, 7).onTrue(new InstantCommand (()->m_armSubsystem.setSetpoint(45, m_linearSlideSubsystem.getHight())));
+    //new JoystickButton(driverJoystick, 6).onTrue(new InstantCommand (()->m_armSubsystem.setSetpoint(0, m_linearSlideSubsystem.getHight())));
+
+    new JoystickButton(driverJoystick, 15).whileTrue(new RunCommand (()->m_linearSlideSubsystem.decreaseSetpoint(m_armSubsystem.getCurrentAngle())));
+    new JoystickButton(driverJoystick, 16).whileTrue(new RunCommand (()->m_linearSlideSubsystem.increaseSetpoint(m_armSubsystem.getCurrentAngle())));
     
     new JoystickButton(driverJoystick, 8).whileTrue(new RunCommand (()->m_shooterSubsystem.setBothMotors(Constants.Shooter.speedToPickup))).onFalse(new RunCommand (()-> m_shooterSubsystem.setBothMotors(0)));
     new JoystickButton(driverJoystick, 9).whileTrue(new RunCommand (()->m_shooterSubsystem.setBothMotors(1.0))).onFalse(new RunCommand (()-> m_shooterSubsystem.setBothMotors(0)));
     
 
-    //new JoystickButton(driverJoystick, 7).whileTrue(new RunCommand (()->m_linearSlideSubsystem.setMotors(0.3)));
+    new JoystickButton(driverJoystick, 11).whileTrue(new RunCommand (()->m_liftSubsystem.unsafeSpeed(0.3)));
+    new JoystickButton(driverJoystick, 12).whileTrue(new RunCommand (()->m_liftSubsystem.unsafeSpeed(-0.3)));
 
 
     //new JoystickButton(driverJoystick, 15).whileTrue(new RunCommand (()->m_armSubsystem.setMotor(0.3))).onFalse(new RunCommand (()->m_armSubsystem.setMotor(0.0)));

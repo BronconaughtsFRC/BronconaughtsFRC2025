@@ -24,7 +24,7 @@ public class ArmSubsystem extends SubsystemBase {
   double usedAngleCurrent = 0.0;
 
   public ArmSubsystem() {
-    angleSetpoint = 0.0;
+    angleSetpoint = 0.0 + Constants.Arm.startingAngle;
     angleCurrent = 0.0;
 
     usedAngleCurrent = 0.0;
@@ -48,9 +48,9 @@ public class ArmSubsystem extends SubsystemBase {
     }
   }
 
-  public void rampSetpoint(double linearSlideHight) {
-    if ((linearSlideHight > Constants.Arm.minSlideHightWhenMoving || angleSetpoint + 0.1 <= Constants.Arm.maxSetpointWhileDown)) {
-      angleSetpoint = mathExtras.codeStop(angleSetpoint + 0.1, Constants.Arm.minAngle, Constants.Arm.maxAngle);
+  public void rampSetpoint(double linearSlideHight, double rampRate) {
+    if ((linearSlideHight > Constants.Arm.minSlideHightWhenMoving || angleSetpoint + rampRate <= Constants.Arm.maxSetpointWhileDown)) {
+      angleSetpoint = mathExtras.codeStop(angleSetpoint + rampRate, Constants.Arm.minAngle, Constants.Arm.maxAngle);
     }
   }
 
@@ -65,7 +65,7 @@ public class ArmSubsystem extends SubsystemBase {
     // This method will be called once per scheduler run
     angleCurrent = armMotor.getEncoder().getPosition() * Constants.Arm.encoderToAngleCoefficent;
     double usedAngleCurrent = angleCurrent + Constants.Arm.startingAngle;
-    armMotor.set(mathExtras.codeStop(pid.calculate(usedAngleCurrent, angleSetpoint), 0.0, Constants.Arm.maxSpeed));
+    armMotor.set(mathExtras.codeStop(pid.calculate(usedAngleCurrent, angleSetpoint), -Constants.Arm.maxSpeed, Constants.Arm.maxSpeed));
 
     SmartDashboard.putNumber("Arm Angle ", usedAngleCurrent);
     SmartDashboard.putNumber("Arm Setpoint ", angleSetpoint);

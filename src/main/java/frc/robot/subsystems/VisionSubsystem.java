@@ -32,7 +32,7 @@ public class VisionSubsystem extends SubsystemBase {
   double mountAngle, lensHeight, goalHeight = 0.0;
 
   public VisionSubsystem() {
-    pipelineNumber = 0;
+    pipelineNumber = 1;
     count = 0;
   }
 
@@ -61,23 +61,23 @@ public class VisionSubsystem extends SubsystemBase {
       x = tx.getDouble(0.0);
       area = ta.getDouble(0.0);
 
-      speedmultiplier = -1.0;
+      speedmultiplier = 1.0;
 
-      mountAngle = 0.0;
-      lensHeight = 0.4318;
+      mountAngle = 27; //75.3;
+      lensHeight = Units.inchesToMeters(9);
     } else {
       tx = table2.getEntry("tx");
       ty = table2.getEntry("ty");
       ta = table2.getEntry("ta");
 
-      y = -(ty.getDouble(0.0));
-      x = -(tx.getDouble(0.0));
+      y = (ty.getDouble(0.0));
+      x = (tx.getDouble(0.0));
       area = ta.getDouble(0.0);
 
       speedmultiplier = 1.0;
 
-      mountAngle = 0.0;
-      lensHeight = 0.889;
+      mountAngle = 27; //75.3;
+      lensHeight = Units.inchesToMeters(6.5);
     }
 
     if (area == 0.0) {
@@ -103,6 +103,7 @@ public class VisionSubsystem extends SubsystemBase {
     }
 
     SmartDashboard.putNumber("Ty ", y);
+    SmartDashboard.putNumber("Limelight Distance ", getDistanceFromTarget(0));
   }
 
   public void setPipeline(int number) {
@@ -126,22 +127,22 @@ public class VisionSubsystem extends SubsystemBase {
       
       speedmultiplier = -1.0;
 
-      mountAngle = 0.0;
-      lensHeight = 0.4318;
+      mountAngle = 31.3;
+      lensHeight = Units.inchesToMeters(9.0);
 
     } else {
       tx = table2.getEntry("tx");
       ty = table2.getEntry("ty");
       ta = table2.getEntry("ta");
 
-      y = -(ty.getDouble(0.0));
-      x = -(tx.getDouble(0.0));
+      y = (ty.getDouble(0.0));
+      x = (tx.getDouble(0.0));
       area = ta.getDouble(0.0);
 
       speedmultiplier = 1.0;
 
-      mountAngle = 0.0;
-      lensHeight = 0.889;
+      mountAngle = 31.3;
+      lensHeight = Units.inchesToMeters(6.5);
     }
 
     if (area == 0.0) {
@@ -168,6 +169,82 @@ public class VisionSubsystem extends SubsystemBase {
     oldY = y;
   }
 
+  public Pose2d getBargePosition() {
+    var allience = DriverStation.getAlliance();
+    if (allience.isPresent()) {
+      if (allience.equals(Alliance.Red)) {
+        return new Pose2d(8.75, 2, new Rotation2d(0));
+      }
+    }
+    return new Pose2d(8.75, 6.2, new Rotation2d(0));
+  }
+
+  public double getTx(int pipeline) {
+    setPipeline(pipeline);
+    return x;
+  }
+
+  public double getDistanceFromTarget(int pipeline) {
+    var allience = DriverStation.getAlliance();
+    if (allience.isPresent()) {
+      if (!allience.equals(Alliance.Blue)) {
+        if (pipeline == 2) {
+          setPipeline(3);
+        }
+      }
+    } else {
+      setPipeline(pipeline);
+    }
+
+    if (pipeline == 0) {
+      goalHeight = 0.3048;
+    } if (pipeline == 1) {
+      goalHeight = 0.2032;
+    } else {
+      goalHeight = 1.7145;
+    }
+
+    /* 
+    double angleToGoalDegrees = mountAngle + y;
+
+    double angleToGoalRadians = Units.degreesToRadians(angleToGoalDegrees);
+
+    SmartDashboard.putNumber("Distance Via Limelight ", (goalHeight - lensHeight) / Math.tan(angleToGoalRadians));
+    return (goalHeight - lensHeight) / Math.tan(Math.abs(angleToGoalRadians));
+    */
+
+    if (pipeline == 1) {
+      SmartDashboard.putBoolean("Getting Algae ", true);
+      return Constants.Vision.GetAlgaeDistance(area);
+    } else {
+      SmartDashboard.putBoolean("Getting Algae ", false);
+      return Constants.Vision.GetAprilTagDistance(area);
+    }
+  }
+
+  public double getVerticleDistanceFromTarget(int pipeline) {
+    var allience = DriverStation.getAlliance();
+    if (allience.isPresent()) {
+      if (!allience.equals(Alliance.Blue)) {
+        if (pipeline == 2) {
+          setPipeline(3);
+        }
+      }
+    } else {
+      setPipeline(pipeline);
+    }
+
+    if (pipeline == 0) {
+      goalHeight = 0.3048;
+    } if (pipeline == 1) {
+      goalHeight = 0.2032;
+    } else {
+      goalHeight = 1.7145;
+    }
+
+    return Constants.Vision.GetAprilTagVerticleDistance(y);
+  }
+
   public Command turnTowardAprilTag(SwerveSubsystem swerve) {
     return run(()-> {
         setPipeline(0);
@@ -189,10 +266,10 @@ public class VisionSubsystem extends SubsystemBase {
         if (!(area == 0)) {
         swerve.setHeadingCorrection(false);
 
-        swerve.setFrontLeft(((Constants.Vision.largestPossibleTagVisionArea - area) * Constants.Vision.distanceKp) * speedmultiplier, 0.0);
-        swerve.setFrontRight(((Constants.Vision.largestPossibleTagVisionArea - area) * Constants.Vision.distanceKp) * speedmultiplier, 0.0);
-        swerve.setBackLeft(((Constants.Vision.largestPossibleTagVisionArea - area) * Constants.Vision.distanceKp) * speedmultiplier, 0.0);
-        swerve.setBackRight(((Constants.Vision.largestPossibleTagVisionArea - area) * Constants.Vision.distanceKp) * speedmultiplier, 0.0);
+        swerve.setFrontLeft((getDistanceFromTarget(0) * speedmultiplier) * Constants.Vision.driveToDistanceKp, 0.0);
+        swerve.setFrontRight((getDistanceFromTarget(0) * speedmultiplier) * Constants.Vision.driveToDistanceKp, 0.0);
+        swerve.setBackLeft((getDistanceFromTarget(0) * speedmultiplier) * Constants.Vision.driveToDistanceKp, 0.0);
+        swerve.setBackRight((getDistanceFromTarget(0) * speedmultiplier) * Constants.Vision.driveToDistanceKp, 0.0);
         }
       }
     );
@@ -205,10 +282,10 @@ public class VisionSubsystem extends SubsystemBase {
         if (!(area == 0)) {
           swerve.setHeadingCorrection(false);
 
-        swerve.setFrontLeft((((Constants.Vision.largestPossibleTagVisionArea - area) * Constants.Vision.distanceKp) * speedmultiplier) + (x * Constants.Vision.turnKp), 0.0);
-        swerve.setFrontRight((((Constants.Vision.largestPossibleTagVisionArea - area) * Constants.Vision.distanceKp) * speedmultiplier) + (-(x * Constants.Vision.turnKp)), 0.0);
-        swerve.setBackLeft((((Constants.Vision.largestPossibleTagVisionArea - area) * Constants.Vision.distanceKp) * speedmultiplier) + (x * Constants.Vision.turnKp), 0.0);
-        swerve.setBackRight((((Constants.Vision.largestPossibleTagVisionArea - area) * Constants.Vision.distanceKp) * speedmultiplier) + (-(x * Constants.Vision.turnKp)), 0.0);
+        swerve.setFrontLeft(((getDistanceFromTarget(0) * speedmultiplier) * Constants.Vision.driveToDistanceKp) + (x * Constants.Vision.turnKp), 0.0);
+        swerve.setFrontRight(((getDistanceFromTarget(0) * speedmultiplier) * Constants.Vision.driveToDistanceKp) + (-(x * Constants.Vision.turnKp)), 0.0);
+        swerve.setBackLeft(((getDistanceFromTarget(0) * speedmultiplier) * Constants.Vision.driveToDistanceKp) + (x * Constants.Vision.turnKp), 0.0);
+        swerve.setBackRight(((getDistanceFromTarget(0) * speedmultiplier) * Constants.Vision.driveToDistanceKp) + (-(x * Constants.Vision.turnKp)), 0.0);
         }     
       }
     );
@@ -237,16 +314,12 @@ public class VisionSubsystem extends SubsystemBase {
           swerve.setHeadingCorrection(false);
 
           //Might need speed multiplier
-          swerve.setFrontLeft((Constants.Vision.largestPossibleBallVisionArea - area) * Constants.Vision.driveToDistanceKp + (x * Constants.Vision.turnKp), 0.0);
-          swerve.setFrontRight((Constants.Vision.largestPossibleBallVisionArea - area) * Constants.Vision.driveToDistanceKp + (-(x * Constants.Vision.turnKp)), 0.0);
-          swerve.setBackLeft((Constants.Vision.largestPossibleBallVisionArea - area) * Constants.Vision.driveToDistanceKp + (x * Constants.Vision.turnKp), 0.0);
-          swerve.setBackRight((Constants.Vision.largestPossibleBallVisionArea - area) * Constants.Vision.driveToDistanceKp + (-(x * Constants.Vision.turnKp)), 0.0);
+          swerve.setFrontLeft(((getDistanceFromTarget(0) * speedmultiplier) * Constants.Vision.driveToDistanceKp) + (x * Constants.Vision.turnKp), 0.0);
+          swerve.setFrontRight(((getDistanceFromTarget(0) * speedmultiplier) * Constants.Vision.driveToDistanceKp) + (-(x * Constants.Vision.turnKp)), 0.0);
+          swerve.setBackLeft(((getDistanceFromTarget(0) * speedmultiplier) * Constants.Vision.driveToDistanceKp) + (x * Constants.Vision.turnKp), 0.0);
+          swerve.setBackRight(((getDistanceFromTarget(0) * speedmultiplier) * Constants.Vision.driveToDistanceKp) + (-(x * Constants.Vision.turnKp)), 0.0);
 
-          if (y > 0) {
-            linearSlide.increaseSetpoint(arm.getCurrentAngle());
-          } else {
-            linearSlide.decreaseSetpoint(arm.getCurrentAngle());
-          }
+          linearSlide.setSetpoint(getVerticleDistanceFromTarget(1) - Constants.LinearSlide.slideHightFromFloor, arm.getCurrentAngle());
 
           if ((linearSlide.getSetpoint() + Constants.LinearSlide.slideHightFromFloor) >= (Constants.FieldConstants.hightOfBottemAlgaeInReef - Constants.Vision.pickUpTargetSlideHightTolerence)) {
             arm.setToReefGrab(linearSlide.getHight());
@@ -292,49 +365,6 @@ public class VisionSubsystem extends SubsystemBase {
         swerve.setBackRight(-mathExtras.codeStop((turningAngle * Constants.Vision.turnKp), 0, Constants.Vision.maxTurnSpeedForTurnToPoint), -45.0);
       }
     );
-  }
-
-  public Pose2d getBargePosition() {
-    var allience = DriverStation.getAlliance();
-    if (allience.isPresent()) {
-      if (allience.equals(Alliance.Red)) {
-        return new Pose2d(8.75, 2, new Rotation2d(0));
-      }
-    }
-    return new Pose2d(8.75, 6.2, new Rotation2d(0));
-  }
-
-  public double getTx(int pipeline) {
-    setPipeline(pipeline);
-    return x;
-  }
-
-  public double getDistanceFromTarget(int pipeline) {
-    var allience = DriverStation.getAlliance();
-    if (allience.isPresent()) {
-      if (!allience.equals(Alliance.Blue)) {
-        if (pipeline == 2) {
-          setPipeline(3);
-        }
-      }
-    } else {
-      setPipeline(pipeline);
-    }
-
-    if (pipeline == 0) {
-      goalHeight = 0.3048;
-    } if (pipeline == 1) {
-      goalHeight = 0.2032;
-    } else {
-      goalHeight = 1.7145;
-    }
-
-    double angleToGoalDegrees = mountAngle + y;
-
-    double angleToGoalRadians = Units.degreesToRadians(angleToGoalDegrees);
-
-    SmartDashboard.putNumber("Distance Via Limelight ", (goalHeight - lensHeight) / Math.tan(Math.abs(angleToGoalRadians)));
-    return (goalHeight - lensHeight) / Math.tan(Math.abs(angleToGoalRadians));
   }
 
   public double calculatePerfectShot(double targetHight, double range, double vi, ArmSubsystem arm, LinearSlideSubsystem slide) {

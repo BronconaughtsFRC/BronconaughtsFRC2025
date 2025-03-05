@@ -4,6 +4,7 @@
 
 package frc.robot;
 
+import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.math.util.Units;
 
 /**
@@ -39,18 +40,18 @@ public final class Constants {
     public static final double ki = 0.0;
     public static final double kd = 0.0;
 
-    public static final double startingAngle = -27.5;
+    public static final double startingAngle = 180;
 
     public static final double angleToGrabOffReef = 45;
 
-    public static final double maxSetpointWhileDown = 75;
+    public static final double maxSetpointWhileDown = 28;
 
     public static final double minSlideHightWhenMoving = Units.inchesToMeters(50);
 
     public static final double encoderToAngleCoefficent = 12.43583;
 
-    public static final double maxAngle = 90.0;
-    public static final double minAngle = -15.0;
+    public static final double maxAngle = 180.0;
+    public static final double minAngle = -10.0;
 
     public static final double maxSpeed = 0.3;
   }
@@ -64,13 +65,14 @@ public final class Constants {
 
     public static final double slideRampSpeed = 0.01;
 
-    public static final double maxArmAngleWhenMoving = 120;
+    public static final double maxArmAngleWhenMoving = 28;
 
     public static final double slideHightFromFloor = Units.inchesToMeters(10.25);
+    public static final double startingArmHight = Units.inchesToMeters(28);
 
     public static final double encoderToMetersCoefficent = (1.475 / 117);
 
-    public static final double maxHight = 1.475 - slideHightFromFloor;
+    public static final double maxHight = 1.475 - slideHightFromFloor; //1.5194
     public static final double minHight = 0.0;
   }
 
@@ -116,7 +118,7 @@ public final class Constants {
   public static class Vision {
     public static final double turnKp = 0.018;
     public static final double driveToDistanceKp = 0.2; //0.8 for carpet maybe. 
-    public static final double distanceKp = 5.735; //Kp to convert area to meters.
+    //public static final double distanceKp = 5.735; //Kp to convert area to meters.
     public static final double slideMovementKp = 0.01;
 
     public static final double largestPossibleTagVisionArea = 1.6;
@@ -141,6 +143,35 @@ public final class Constants {
     public static final double targetHightRampSpeed = 0.1; //In meters per second. Higher will make the shot less accurate, but shoot sooner if there is delay.
 
     public static final double maxTurnSpeedForTurnToPoint = 0.3;
+
+    public static InterpolatingDoubleTreeMap distanceInterpolater = new InterpolatingDoubleTreeMap();
+    public static InterpolatingDoubleTreeMap verticleDistanceInterpolater = new InterpolatingDoubleTreeMap();
+    public static InterpolatingDoubleTreeMap algaeDistanceInterpolater = new InterpolatingDoubleTreeMap();
+
+
+    public static double GetAprilTagDistance(double value) {
+      distanceInterpolater.put(6.552953, Units.inchesToMeters(24));
+      distanceInterpolater.put(1.682014, Units.inchesToMeters(54));
+      distanceInterpolater.put(0.720026, Units.inchesToMeters(84));
+      //distanceInterpolater.put(null, null);
+
+      return distanceInterpolater.get(value);
+    }
+    public static double GetAprilTagVerticleDistance(double value) {
+      verticleDistanceInterpolater.put(null, null);
+      verticleDistanceInterpolater.put(null, null);
+      verticleDistanceInterpolater.put(null, null);
+
+      return verticleDistanceInterpolater.get(value);
+    }
+    public static double GetAlgaeDistance(double value) {
+      algaeDistanceInterpolater.put(16.0, 15.0);
+      algaeDistanceInterpolater.put(12.0, 24.0);
+      algaeDistanceInterpolater.put(2.8, 40.0);
+      algaeDistanceInterpolater.put(1.7, 60.0);
+
+      return algaeDistanceInterpolater.get(value);
+    }
   }
 
   public static class FieldConstants {
