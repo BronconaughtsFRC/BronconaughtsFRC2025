@@ -25,20 +25,25 @@ public class LinearSlideSubsystem extends SubsystemBase {
     slideSetpoint = 0.0;
     slideCurrent = 0.0;
   }
-
+  //was <
   public void setSetpoint(double setpoint, double armAngle) {
-    if ((armAngle < Constants.LinearSlide.maxArmAngleWhenMoving) || (armAngle < 90 && setpoint > Constants.LinearSlide.startingArmHight)) {
+    if ((armAngle < Constants.LinearSlide.maxArmAngleWhenMoving) || (armAngle > 90 && setpoint > Constants.LinearSlide.startingArmHight)) {
       slideSetpoint = mathExtras.codeStop(setpoint, Constants.LinearSlide.minHight, Constants.LinearSlide.maxHight);
     }
   }
   public void increaseSetpoint(double armAngle) {
-    if ((armAngle < Constants.LinearSlide.maxArmAngleWhenMoving) || (armAngle < 90 && slideSetpoint + Constants.LinearSlide.slideRampSpeed > Constants.LinearSlide.startingArmHight)) {
+    if ((armAngle < Constants.LinearSlide.maxArmAngleWhenMoving) || (armAngle > 90 && slideSetpoint + Constants.LinearSlide.slideRampSpeed > Constants.LinearSlide.startingArmHight)) {
       slideSetpoint = mathExtras.codeStop(slideSetpoint + Constants.LinearSlide.slideRampSpeed, Constants.LinearSlide.minHight, Constants.LinearSlide.maxHight);
     }
   }
   public void decreaseSetpoint(double armAngle) {
-    if ((armAngle < Constants.LinearSlide.maxArmAngleWhenMoving) || (armAngle < 90 && slideSetpoint - Constants.LinearSlide.slideRampSpeed > Constants.LinearSlide.startingArmHight)) {
+    if ((armAngle < Constants.LinearSlide.maxArmAngleWhenMoving) || (armAngle > 90 && slideSetpoint - Constants.LinearSlide.slideRampSpeed > Constants.LinearSlide.startingArmHight)) {
       slideSetpoint = mathExtras.codeStop(slideSetpoint - Constants.LinearSlide.slideRampSpeed, Constants.LinearSlide.minHight, Constants.LinearSlide.maxHight);
+    }
+  }
+  public void rampSetpoint(double armAngle, double ramp) {
+    if ((armAngle < Constants.LinearSlide.maxArmAngleWhenMoving) || (armAngle > 90 && slideSetpoint + ramp > Constants.LinearSlide.startingArmHight)) {
+      slideSetpoint = mathExtras.codeStop(slideSetpoint + ramp, Constants.LinearSlide.minHight, Constants.LinearSlide.maxHight);
     }
   }
 

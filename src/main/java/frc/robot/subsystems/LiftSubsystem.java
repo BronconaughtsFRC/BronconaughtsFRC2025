@@ -7,6 +7,7 @@ package frc.robot.subsystems;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
@@ -20,7 +21,7 @@ public class LiftSubsystem extends SubsystemBase {
   }
 
   public void setSpeed(double speed) {
-    if (Constants.Lift.minHight > liftMotor.getEncoder().getPosition() || liftMotor.getEncoder().getPosition() > Constants.Lift.maxHight) {
+    if (liftMotor.getEncoder().getPosition() < Constants.Lift.minHight) {
       speed = 0.0;
     }
     liftMotor.set(speed);

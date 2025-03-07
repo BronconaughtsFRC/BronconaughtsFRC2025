@@ -103,7 +103,7 @@ public class VisionSubsystem extends SubsystemBase {
     }
 
     SmartDashboard.putNumber("Ty ", y);
-    SmartDashboard.putNumber("Limelight Distance ", getDistanceFromTarget(0));
+    SmartDashboard.putNumber("Limelight Distance ", getVerticleDistanceFromTarget(1));
   }
 
   public void setPipeline(int number) {
@@ -125,7 +125,7 @@ public class VisionSubsystem extends SubsystemBase {
       area = ta.getDouble(0.0);
 
       
-      speedmultiplier = -1.0;
+      speedmultiplier = 1.0;
 
       mountAngle = 31.3;
       lensHeight = Units.inchesToMeters(9.0);
@@ -242,7 +242,7 @@ public class VisionSubsystem extends SubsystemBase {
       goalHeight = 1.7145;
     }
 
-    return Constants.Vision.GetAprilTagVerticleDistance(y);
+    return Constants.Vision.GetAlgaeVerticleDistance(y);
   }
 
   public Command turnTowardAprilTag(SwerveSubsystem swerve) {
@@ -275,17 +275,17 @@ public class VisionSubsystem extends SubsystemBase {
     );
   }
 
-  public Command moveAndAlignTowardAprilTag(SwerveSubsystem swerve) {
+  public Command moveAndAlignTowardAprilTag(SwerveSubsystem swerve, double targetDistance) {
     return run(()-> {
         setPipeline(0);
 
         if (!(area == 0)) {
           swerve.setHeadingCorrection(false);
 
-        swerve.setFrontLeft(((getDistanceFromTarget(0) * speedmultiplier) * Constants.Vision.driveToDistanceKp) + (x * Constants.Vision.turnKp), 0.0);
-        swerve.setFrontRight(((getDistanceFromTarget(0) * speedmultiplier) * Constants.Vision.driveToDistanceKp) + (-(x * Constants.Vision.turnKp)), 0.0);
-        swerve.setBackLeft(((getDistanceFromTarget(0) * speedmultiplier) * Constants.Vision.driveToDistanceKp) + (x * Constants.Vision.turnKp), 0.0);
-        swerve.setBackRight(((getDistanceFromTarget(0) * speedmultiplier) * Constants.Vision.driveToDistanceKp) + (-(x * Constants.Vision.turnKp)), 0.0);
+        swerve.setFrontLeft((((targetDistance - getDistanceFromTarget(0)) * speedmultiplier) * -Constants.Vision.driveToDistanceKp) + (x * Constants.Vision.turnKp), 0.0);
+        swerve.setFrontRight((((targetDistance - getDistanceFromTarget(0)) * speedmultiplier) * -Constants.Vision.driveToDistanceKp) + (-(x * Constants.Vision.turnKp)), 0.0);
+        swerve.setBackLeft((((targetDistance - getDistanceFromTarget(0)) * speedmultiplier) * -Constants.Vision.driveToDistanceKp) + (x * Constants.Vision.turnKp), 0.0);
+        swerve.setBackRight((((targetDistance - getDistanceFromTarget(0)) * speedmultiplier) * -Constants.Vision.driveToDistanceKp) + (-(x * Constants.Vision.turnKp)), 0.0);
         }     
       }
     );
@@ -314,10 +314,10 @@ public class VisionSubsystem extends SubsystemBase {
           swerve.setHeadingCorrection(false);
 
           //Might need speed multiplier
-          swerve.setFrontLeft(((getDistanceFromTarget(0) * speedmultiplier) * Constants.Vision.driveToDistanceKp) + (x * Constants.Vision.turnKp), 0.0);
-          swerve.setFrontRight(((getDistanceFromTarget(0) * speedmultiplier) * Constants.Vision.driveToDistanceKp) + (-(x * Constants.Vision.turnKp)), 0.0);
-          swerve.setBackLeft(((getDistanceFromTarget(0) * speedmultiplier) * Constants.Vision.driveToDistanceKp) + (x * Constants.Vision.turnKp), 0.0);
-          swerve.setBackRight(((getDistanceFromTarget(0) * speedmultiplier) * Constants.Vision.driveToDistanceKp) + (-(x * Constants.Vision.turnKp)), 0.0);
+          swerve.setFrontLeft(((getDistanceFromTarget(1) * speedmultiplier) * -Constants.Vision.driveToDistanceKp) + (x * Constants.Vision.turnKp), 0.0);
+          swerve.setFrontRight(((getDistanceFromTarget(1) * speedmultiplier) * -Constants.Vision.driveToDistanceKp) + (-(x * Constants.Vision.turnKp)), 0.0);
+          swerve.setBackLeft(((getDistanceFromTarget(1) * speedmultiplier) * -Constants.Vision.driveToDistanceKp) + (x * Constants.Vision.turnKp), 0.0);
+          swerve.setBackRight(((getDistanceFromTarget(1) * speedmultiplier) * -Constants.Vision.driveToDistanceKp) + (-(x * Constants.Vision.turnKp)), 0.0);
 
           linearSlide.setSetpoint(getVerticleDistanceFromTarget(1) - Constants.LinearSlide.slideHightFromFloor, arm.getCurrentAngle());
 

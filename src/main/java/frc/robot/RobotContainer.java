@@ -20,6 +20,7 @@ import com.pathplanner.lib.auto.NamedCommands;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -57,20 +58,29 @@ public class RobotContainer {
   private final Joystick driverJoystick =
       new Joystick(OperatorConstants.kDriverControllerPort);
 
+  private final XboxController operatorController = new XboxController(OperatorConstants.kOperatorControllerPort);
+
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
     // Configure the trigger bindings
     m_visionSubsystem.turnTowardAprilTag(m_swerveSubsystem).addRequirements(m_swerveSubsystem);
     m_visionSubsystem.moveTowardAprilTag(m_swerveSubsystem).addRequirements(m_swerveSubsystem);
-    m_visionSubsystem.moveAndAlignTowardAprilTag(m_swerveSubsystem).addRequirements(m_swerveSubsystem);
+    m_visionSubsystem.moveAndAlignTowardAprilTag(m_swerveSubsystem, 0.0).addRequirements(m_swerveSubsystem);
     m_visionSubsystem.strafeTowardAlgaeBall(m_swerveSubsystem).addRequirements(m_swerveSubsystem);
-    //m_visionSubsystem.pickUpTarget(m_swerveSubsystem, m_linearSlideSubsystem, m_armSubsystem, m_shooterSubsystem).addRequirements(m_swerveSubsystem);
+    m_visionSubsystem.pickUpTarget(m_swerveSubsystem, m_linearSlideSubsystem, m_armSubsystem, m_shooterSubsystem).addRequirements(m_swerveSubsystem, m_linearSlideSubsystem, m_armSubsystem, m_shooterSubsystem);
     m_visionSubsystem.turnTowardPoint(m_swerveSubsystem, 0, 0).addRequirements(m_swerveSubsystem);
 
     m_swerveSubsystem.setDefaultCommand(m_swerveSubsystem.driveCommand(
       ()-> -mathExtras.deadband(driverJoystick.getY(), Constants.OperatorConstants.deadband),
-      ()-> -mathExtras.deadband(driverJoystick.getX(), Constants.OperatorConstants.deadband),
+      ()-> mathExtras.deadband(driverJoystick.getX(), Constants.OperatorConstants.deadband),
       ()-> -mathExtras.deadband(driverJoystick.getZ(), Constants.OperatorConstants.deadband)));
+    //in pidf, d was 0.0
+    
+    m_linearSlideSubsystem.setDefaultCommand(new RunCommand(()->
+      m_linearSlideSubsystem.rampSetpoint(m_armSubsystem.getCurrentAngle(), mathExtras.deadband(operatorController.getRightY(), Constants.OperatorConstants.deadband)  * -0.01), m_linearSlideSubsystem));
+    m_armSubsystem.setDefaultCommand(new RunCommand(()->
+      m_armSubsystem.rampSetpoint(m_linearSlideSubsystem.getHight(), mathExtras.deadband(operatorController.getLeftY(), Constants.OperatorConstants.deadband)  * -1.0), m_armSubsystem));
+    
 
     Pose2d bargePosition = m_visionSubsystem.getBargePosition();
 
@@ -78,10 +88,9 @@ public class RobotContainer {
     SmartDashboard.putData("Auto Chooser", autoChooser);
 
     NamedCommands.registerCommand("StrafeToAlgaeBall", m_visionSubsystem.strafeTowardAlgaeBall(m_swerveSubsystem));
-
-    /* 
-
+    //Test if PickupTarget is inverted
     NamedCommands.registerCommand("PickUpTarget", m_visionSubsystem.pickUpTarget(m_swerveSubsystem, m_linearSlideSubsystem, m_armSubsystem, m_shooterSubsystem));
+    NamedCommands.registerCommand("MoveToAprilTag", m_visionSubsystem.moveAndAlignTowardAprilTag(m_swerveSubsystem, 0.5));
     NamedCommands.registerCommand("Shoot", new InstantCommand(()-> m_shooterSubsystem.setBothMotorsForTime(
       m_visionSubsystem.calculateShot(
       2.262048,
@@ -89,9 +98,6 @@ public class RobotContainer {
       m_armSubsystem,
       m_linearSlideSubsystem), Constants.Shooter.secondsToShoot),
       m_shooterSubsystem)); //Change to other shooter command if the others work better.
-
-      */
-    NamedCommands.registerCommand("Turn Toward Barge", m_visionSubsystem.turnTowardPoint(m_swerveSubsystem, bargePosition.getX(), bargePosition.getY()));
 
     //NamedCommands.registerCommand("AlignThenShoot", somethingIDK);
 
@@ -131,6 +137,11 @@ public class RobotContainer {
 
     //new JoystickButton(driverJoystick, 16).whileTrue(m_visionSubsystem.moveAndAlignTowardAprilTag(m_swerveSubsystem));
     
+    new Trigger(()-> (operatorController.getRightTriggerAxis() > 0.2)).whileTrue(new RunCommand(()->m_shooterSubsystem.setBothMotors(0.9))).onFalse(new RunCommand(()->m_shooterSubsystem.setBothMotors(0.0)));
+    new Trigger(()-> (operatorController.getLeftTriggerAxis() > 0.2)).whileTrue(new RunCommand(()->m_shooterSubsystem.setBothMotors(Constants.Shooter.speedToPickup))).onFalse(new RunCommand(()->m_shooterSubsystem.setBothMotors(0.0)));
+
+
+    new JoystickButton(driverJoystick, 2).whileTrue(m_visionSubsystem.pickUpTarget(m_swerveSubsystem, m_linearSlideSubsystem, m_armSubsystem, m_shooterSubsystem));
 
     new JoystickButton(driverJoystick, 7).whileTrue(new RunCommand (()->m_armSubsystem.rampSetpoint(m_linearSlideSubsystem.getHight(), 0.5)));
     new JoystickButton(driverJoystick, 6).whileTrue(new RunCommand (()->m_armSubsystem.rampSetpoint(m_linearSlideSubsystem.getHight(), -0.5)));
@@ -146,8 +157,8 @@ public class RobotContainer {
     new JoystickButton(driverJoystick, 9).whileTrue(new RunCommand (()->m_shooterSubsystem.setBothMotors(1.0))).onFalse(new RunCommand (()-> m_shooterSubsystem.setBothMotors(0)));
     
 
-    new JoystickButton(driverJoystick, 11).whileTrue(new RunCommand (()->m_liftSubsystem.unsafeSpeed(0.3)));
-    new JoystickButton(driverJoystick, 12).whileTrue(new RunCommand (()->m_liftSubsystem.unsafeSpeed(-0.3)));
+    new JoystickButton(driverJoystick, 11).whileTrue(new RunCommand (()->m_liftSubsystem.unsafeSpeed(0.3))).onFalse(new RunCommand (()-> m_liftSubsystem.setSpeed(0)));
+    new JoystickButton(driverJoystick, 12).whileTrue(new RunCommand (()->m_liftSubsystem.unsafeSpeed(-0.3))).onFalse(new RunCommand (()-> m_liftSubsystem.setSpeed(0)));
 
 
     //new JoystickButton(driverJoystick, 15).whileTrue(new RunCommand (()->m_armSubsystem.setMotor(0.3))).onFalse(new RunCommand (()->m_armSubsystem.setMotor(0.0)));

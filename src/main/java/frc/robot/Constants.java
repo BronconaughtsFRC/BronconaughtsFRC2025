@@ -18,6 +18,7 @@ import edu.wpi.first.math.util.Units;
 public final class Constants {
   public static class OperatorConstants {
     public static final int kDriverControllerPort = 0;
+    public static final int kOperatorControllerPort = 1;
 
     public static final double deadband = 0.2;
   }
@@ -62,6 +63,8 @@ public final class Constants {
     public static final double kp = 15.0; //0.6
     public static final double ki = 0.0;
     public static final double kd = 0.0;
+
+    public static final double gravityResistenceCoefficent = 0.01;
 
     public static final double slideRampSpeed = 0.01;
 
@@ -124,7 +127,7 @@ public final class Constants {
     public static final double largestPossibleTagVisionArea = 1.6;
     public static final double largestPossibleBallVisionArea = 2;
     public static final double areaDeadband = 0.05;
-    public static final double areaDedectionDeadband = 0.005; //Zero for no deadband.
+    public static final double areaDedectionDeadband = 0.3; //Zero for no deadband.
 
     public static final double shooterShotKp = 0.05;
     public static final double maxBallVelocity = 2.0; //m/s of the ball.
@@ -157,18 +160,19 @@ public final class Constants {
 
       return distanceInterpolater.get(value);
     }
-    public static double GetAprilTagVerticleDistance(double value) {
-      verticleDistanceInterpolater.put(null, null);
-      verticleDistanceInterpolater.put(null, null);
-      verticleDistanceInterpolater.put(null, null);
+    public static double GetAlgaeVerticleDistance(double value) {
+      verticleDistanceInterpolater.put(-16.0, Units.inchesToMeters(8));
+      verticleDistanceInterpolater.put(0.5, Units.inchesToMeters(20));
+      verticleDistanceInterpolater.put(13.5, Units.inchesToMeters(40));
+      verticleDistanceInterpolater.put(18.5, Units.inchesToMeters(55));
 
       return verticleDistanceInterpolater.get(value);
     }
     public static double GetAlgaeDistance(double value) {
-      algaeDistanceInterpolater.put(16.0, 15.0);
-      algaeDistanceInterpolater.put(12.0, 24.0);
-      algaeDistanceInterpolater.put(2.8, 40.0);
-      algaeDistanceInterpolater.put(1.7, 60.0);
+      algaeDistanceInterpolater.put(16.0, Units.inchesToMeters(15.0));
+      algaeDistanceInterpolater.put(12.0, Units.inchesToMeters(24.0));
+      algaeDistanceInterpolater.put(2.8, Units.inchesToMeters(40.0));
+      algaeDistanceInterpolater.put(1.7, Units.inchesToMeters(60.0));
 
       return algaeDistanceInterpolater.get(value);
     }

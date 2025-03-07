@@ -106,6 +106,11 @@ public class SwerveSubsystem extends SubsystemBase {
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
+    
+    for (int count = 0; count < modules.length; count++) {
+      SmartDashboard.putNumber("Module Number " + count + " absolute pos", modules[count].getAbsolutePosition());
+      SmartDashboard.putNumber("Module Number " + count + " raw absolute pos", modules[count].getRawAbsolutePosition());
+    }
   }
   public Command driveCommand(DoubleSupplier translationX, DoubleSupplier translationY, DoubleSupplier headingX,
                               DoubleSupplier headingY)
